@@ -7,43 +7,45 @@ const Register = () => {
   const { createUser } = use(AuthContext);
   const navigate = useNavigate();
 
-const handleRegister = (e) => {
-  e.preventDefault();
+  const handleRegister = (e) => {
+    e.preventDefault();
 
-  const name = e.target.name.value;
-  const email = e.target.email.value;
-  const password = e.target.password.value;
-  const role = e.target.role.value;
+    const name = e.target.name.value;
+    const email = e.target.email.value;
+    const password = e.target.password.value;
+    const role = e.target.role.value;
+    const photo = e.target.photo.value;
+    const bio = e.target.bio.value;
 
-  createUser(email, password)
-    .then((result) => {
-      const createdUser = result.user;
+    createUser(email, password)
+      .then((result) => {
+        console.log(result);
 
-      console.log(createdUser)
-      // Save user to database
-      const saveUser = {
-        name,
-        email,
-        role,
-      };
+        const saveUser = {
+          name,
+          email,
+          role,
+          photo,
+          bio,
+        };
 
-      fetch("http://localhost:3000/users", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(saveUser),
+        fetch("http://localhost:3000/users", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(saveUser),
+        })
+          .then((res) => res.json())
+          .then((data) => {
+            console.log("User saved to DB:", data);
+            navigate("/");
+          });
       })
-        .then((res) => res.json())
-        .then((data) => {
-          console.log("User saved to DB:", data);
-          navigate('/')
-        });
-    })
-    .catch((error) => {
-      console.error("Firebase Error:", error);
-    });
-};
+      .catch((error) => {
+        console.error("Firebase Error:", error);
+      });
+  };
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100 px-4">
@@ -61,7 +63,7 @@ const handleRegister = (e) => {
             type="text"
             name="name"
             id="name"
-            className="w-full border border-gray-300 rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full border border-gray-300 rounded px-4 py-2"
             placeholder="Enter your name"
           />
         </div>
@@ -74,7 +76,7 @@ const handleRegister = (e) => {
             type="email"
             name="email"
             id="email"
-            className="w-full border border-gray-300 rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full border border-gray-300 rounded px-4 py-2"
             placeholder="Enter your email"
           />
         </div>
@@ -87,9 +89,35 @@ const handleRegister = (e) => {
             type="password"
             name="password"
             id="password"
-            className="w-full border border-gray-300 rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full border border-gray-300 rounded px-4 py-2"
             placeholder="Create a password"
           />
+        </div>
+
+        <div className="mb-4">
+          <label htmlFor="photo" className="block font-medium mb-1">
+            Photo URL
+          </label>
+          <input
+            type="text"
+            name="photo"
+            id="photo"
+            className="w-full border border-gray-300 rounded px-4 py-2"
+            placeholder="Paste your photo URL"
+          />
+        </div>
+
+        <div className="mb-4">
+          <label htmlFor="bio" className="block font-medium mb-1">
+            Short Bio
+          </label>
+          <textarea
+            name="bio"
+            id="bio"
+            rows="3"
+            className="w-full border border-gray-300 rounded px-4 py-2"
+            placeholder="Tell us something about yourself..."
+          ></textarea>
         </div>
 
         <div className="mb-6">
@@ -99,7 +127,7 @@ const handleRegister = (e) => {
           <select
             name="role"
             id="role"
-            className="w-full border border-gray-300 rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full border border-gray-300 rounded px-4 py-2"
           >
             <option value="">-- Choose Role --</option>
             <option value="student">Student</option>
@@ -116,7 +144,7 @@ const handleRegister = (e) => {
 
         <p className="mt-4 text-sm text-center text-gray-600">
           Already have an account?{" "}
-          <Link to='/login' className="text-blue-600 hover:underline">
+          <Link to="/login" className="text-blue-600 hover:underline">
             Login
           </Link>
         </p>
