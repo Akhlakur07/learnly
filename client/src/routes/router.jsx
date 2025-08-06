@@ -6,6 +6,7 @@ import Login from "../pages/Login";
 import StudentProfile from "../pages/Profile/StudentProfile";
 import InstructorProfile from "../pages/Profile/InstructorProfile";
 import PrivateRoute from "../context/PrivateRoute";
+import AddCourses from "../pages/AddCourses";
 
 const router = createBrowserRouter([
   {
@@ -31,7 +32,7 @@ const router = createBrowserRouter([
           <PrivateRoute>
             <StudentProfile></StudentProfile>
           </PrivateRoute>
-        )
+        ),
       },
       {
         path: "/instructorProfile",
@@ -39,7 +40,15 @@ const router = createBrowserRouter([
           <PrivateRoute>
             <InstructorProfile></InstructorProfile>
           </PrivateRoute>
-        )
+        ),
+      },
+      {
+        path: "/addCourse",
+        element: (
+          <PrivateRoute>
+            <AddCourses></AddCourses>
+          </PrivateRoute>
+        ),
       },
     ],
   },

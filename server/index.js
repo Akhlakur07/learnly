@@ -63,6 +63,38 @@ async function run() {
       res.send(user);
     });
 
+    const courseCollection = client.db("learnlyDB").collection("courses");
+
+    app.post("/courses", async (req, res) => {
+      const course = req.body;
+      try {
+        const result = await courseCollection.insertOne(course);
+        res.send(result);
+      } catch (error) {
+        res.status(500).send({ message: "Failed to create course", error });
+      }
+    });
+
+    app.get("/courses", async (req, res) => {
+      try {
+        const instructorEmail = req.query.instructorEmail;
+        let query = {};
+
+        if (instructorEmail) {
+          query = { instructorEmail };
+        }
+
+        console.log("Fetching courses with query:", query);
+        const courses = await courseCollection.find(query).toArray();
+        res.json(courses);
+      } catch (error) {
+        console.error("Error fetching courses:", error);
+        res
+          .status(500)
+          .json({ message: "Server error while fetching courses" });
+      }
+    });
+
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
     console.log(
