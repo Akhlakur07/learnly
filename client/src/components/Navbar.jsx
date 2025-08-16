@@ -28,7 +28,6 @@ const Navbar = () => {
     return () => unsubscribe();
   }, []);
 
-  // ✅ Handle profile click and redirect by role
   const handleProfileRedirect = async () => {
     if (!user?.email) return;
 

@@ -48,7 +48,7 @@ const router = createBrowserRouter([
           <PrivateRoute>
             <AddCourses></AddCourses>
           </PrivateRoute>
-        ),
+        )
       },
     ],
   },

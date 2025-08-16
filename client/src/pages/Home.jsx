@@ -44,7 +44,7 @@ const Home = () => {
               <h1 className="mt-4 text-4xl md:text-6xl font-extrabold leading-tight">
                 Learn faster with
                 <span className="mx-2 bg-gradient-to-r from-yellow-500 to-yellow-300 bg-clip-text text-transparent">
-                  Larnly
+                  Learnly
                 </span>
               </h1>
 
