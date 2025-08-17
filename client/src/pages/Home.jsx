@@ -18,7 +18,7 @@ const fadeUp = {
 
 const Home = () => {
   return (
-    <div className="min-h-screen bg-white text-black">
+    <div className="min-h-screen bg-white text-black px-[15%] pt-16">
       {/* Decorative background */}
       <div className="pointer-events-none fixed inset-0 -z-10">
         {/* soft radial glow */}

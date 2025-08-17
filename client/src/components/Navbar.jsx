@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router"; // FIX: changed from "react-router" to "react-router-dom"
+import { Link, useNavigate } from "react-router";
 import { onAuthStateChanged } from "firebase/auth";
 import { AuthContext } from "../context/AuthContext";
 import { auth } from "../firebase/firebase.init";
@@ -9,92 +9,97 @@ const Navbar = () => {
   const [user, setUser] = useState(null);
   const navigate = useNavigate();
 
-  const handleLogOut = () => {
-    console.log("logged out");
-    logOut()
-      .then(() => {
-        alert("Logget Out");
-      })
-      .catch((error) => {
-        console.log(error);
+  // watch auth state
+  useEffect(() => {
+    const unsub = onAuthStateChanged(auth, (currentUser) => setUser(currentUser));
+    return () => unsub();
+  }, []);
+
+  // dashboard route by role (simple)
+  const handleDashboard = () => {
+    if (!user?.email) {
+      navigate("/login");
+      return;
+    }
+    fetch(`http://localhost:3000/users/email/${user.email}`)
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.role === "student") navigate("/studentProfile");
+        else if (data.role === "instructor") navigate("/instructorProfile");
       });
   };
 
-  // Monitor Firebase auth state
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      setUser(currentUser);
+  const handleLogOut = () => {
+    logOut().then(() => {
+      alert("Logged out");
+      navigate("/");
     });
-    return () => unsubscribe();
-  }, []);
-
-  const handleProfileRedirect = async () => {
-    if (!user?.email) return;
-
-    try {
-      const res = await fetch(
-        `http://localhost:3000/users/email/${user.email}`
-      );
-      if (!res.ok) throw new Error("User not found");
-
-      const userData = await res.json();
-
-      if (userData.role === "student") {
-        navigate("/studentProfile");
-      } else if (userData.role === "instructor") {
-        navigate("/instructorProfile");
-      } else {
-        alert("Unknown role: cannot navigate.");
-      }
-    } catch (error) {
-      console.error("Failed to fetch user:", error);
-      alert("Failed to load user profile");
-    }
   };
 
   return (
-    <nav className="flex justify-between items-center p-4 bg-white shadow-md">
-      <div>
-        <Link to="/" className="text-xl font-bold">
-          Learnly
-        </Link>
-      </div>
-
-      <div className="flex items-center gap-4">
-        <Link to="/courses" className="hover:underline">
-          Courses
-        </Link>
-
-        {user ? (
-          <>
-            <button
-              onClick={handleLogOut}
-              className="px-3 py-1 bg-red-500 text-white rounded"
-            >
-              Logout
-            </button>
-            <img
-              src={
-                user.photoURL || "https://i.ibb.co/2nQZqgq/default-avatar.png"
-              }
-              alt="Profile"
-              className="w-10 h-10 rounded-full cursor-pointer"
-              title={user.displayName || "User"}
-              onClick={handleProfileRedirect}
-            />
-          </>
-        ) : (
-          <>
-            <Link to="/login" className="hover:underline">
-              Login
+    <header className="fixed inset-x-0 top-0 z-50 bg-white/80 backdrop-blur border-b border-yellow-200">
+      <nav className="mx-auto max-w-7xl px-4">
+        {/* bigger height */}
+        <div className="flex h-20 items-center">
+          {/* Left: Logo */}
+          <div className="min-w-[140px]">
+            <Link to="/" className="flex items-center gap-3">
+              <span className="inline-block h-8 w-8 rounded-lg bg-yellow-400" />
+              <span className="text-2xl font-extrabold text-black leading-none">Learnly</span>
             </Link>
-            <Link to="/register" className="hover:underline">
-              Register
-            </Link>
-          </>
-        )}
-      </div>
-    </nav>
+          </div>
+
+          {/* Middle: Nav items */}
+          <div className="flex-1">
+            <ul className="flex justify-center items-center gap-8">
+              <li>
+                <Link
+                  to="/"
+                  className="text-base md:text-lg font-semibold text-black/80 hover:text-black"
+                >
+                  Home
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/courses"
+                  className="text-base md:text-lg font-semibold text-black/80 hover:text-black"
+                >
+                  View Courses
+                </Link>
+              </li>
+              <li>
+                <button
+                  onClick={handleDashboard}
+                  className="text-base md:text-lg font-semibold text-black/80 hover:text-black"
+                >
+                  Dashboard
+                </button>
+              </li>
+            </ul>
+          </div>
+
+          {/* Right: Auth button */}
+          <div className="min-w-[140px] flex justify-end">
+            {user ? (
+              <button
+                onClick={handleLogOut}
+                className="rounded-xl bg-black px-5 py-3 text-white text-sm md:text-base font-semibold hover:opacity-90"
+              >
+                Logout
+              </button>
+            ) : (
+              <Link
+                to="/login"
+                className="rounded-xl bg-yellow-400 px-5 py-3 text-black text-sm md:text-base font-semibold hover:bg-yellow-300"
+              >
+                Login
+              </Link>
+            )}
+          </div>
+        </div>
+      </nav>
+    </header>
   );
 };
 

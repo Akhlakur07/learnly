@@ -7,6 +7,9 @@ import StudentProfile from "../pages/Profile/StudentProfile";
 import InstructorProfile from "../pages/Profile/InstructorProfile";
 import PrivateRoute from "../context/PrivateRoute";
 import AddCourses from "../pages/AddCourses";
+import AllCourses from "../pages/AllCourses";
+import CourseDetails from "../pages/CourseDetails";
+import ContinueCourse from "../pages/ContinueCourse";
 
 const router = createBrowserRouter([
   {
@@ -48,7 +51,27 @@ const router = createBrowserRouter([
           <PrivateRoute>
             <AddCourses></AddCourses>
           </PrivateRoute>
-        )
+        ),
+      },
+      {
+        path: "/courses",
+        Component: AllCourses,
+      },
+      {
+        path: "/courses/:id",
+        element: (
+          <PrivateRoute>
+            <CourseDetails></CourseDetails>
+          </PrivateRoute>
+        ),
+      },
+      {
+        path: "/continue/:id",
+        element: (
+          <PrivateRoute>
+            <ContinueCourse></ContinueCourse>
+          </PrivateRoute>
+        ),
       },
     ],
   },
