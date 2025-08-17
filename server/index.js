@@ -199,6 +199,92 @@ async function run() {
       }
     });
 
+    // helper (top of file)
+    function makeCertId(email = "", courseId = "") {
+      const name = (email.split("@")[0] || "USER").slice(0, 4).toUpperCase();
+      const tail = String(courseId).slice(-4).toUpperCase();
+      const rand = Math.random().toString(36).slice(2, 8).toUpperCase();
+      return `LEARNLY-${name}-${tail}-${rand}`;
+    }
+
+    // inside run(), replace your /users/completeCourse with this version
+    app.patch("/users/completeCourse", async (req, res) => {
+      const { email, courseId, mark } = req.body;
+      if (!email || !courseId) {
+        return res.status(400).send({ message: "email and courseId required" });
+      }
+
+      try {
+        // check if meta already exists to avoid overwriting certId/completedAt
+        const user = await userCollection.findOne(
+          { email },
+          { projection: { completedCourseMeta: 1 } }
+        );
+        const hasMeta = !!user?.completedCourseMeta?.[courseId];
+
+        const now = new Date().toISOString();
+        const safeMark = Number(mark) || 0;
+
+        const update = {
+          $addToSet: { completedCourses: courseId },
+          $set: { [`completedCourseMarks.${courseId}`]: safeMark },
+        };
+
+        if (!hasMeta) {
+          update.$set[`completedCourseMeta.${courseId}`] = {
+            mark: safeMark,
+            completedAt: now,
+            certId: makeCertId(email, courseId),
+          };
+        }
+
+        const result = await userCollection.updateOne({ email }, update);
+        res.send({ ok: true, modifiedCount: result.modifiedCount });
+      } catch (e) {
+        res
+          .status(500)
+          .send({ message: "Failed to complete course", error: e.message });
+      }
+    });
+
+    app.get("/users/cert/:email/:courseId", async (req, res) => {
+      const { email, courseId } = req.params;
+      try {
+        const user = await userCollection.findOne(
+          { email },
+          {
+            projection: {
+              name: 1,
+              completedCourseMarks: 1,
+              completedCourseMeta: 1,
+            },
+          }
+        );
+        if (!user) return res.status(404).send({ message: "User not found" });
+
+        const course = await courseCollection.findOne(
+          { _id: new ObjectId(courseId) },
+          { projection: { title: 1 } }
+        );
+        if (!course)
+          return res.status(404).send({ message: "Course not found" });
+
+        const mark = user.completedCourseMarks?.[courseId] ?? null;
+        const meta = user.completedCourseMeta?.[courseId] ?? {};
+        res.send({
+          name: user.name,
+          courseTitle: course.title,
+          mark,
+          completedAt: meta.completedAt || null,
+          certId: meta.certId || null,
+        });
+      } catch (e) {
+        res
+          .status(500)
+          .send({ message: "Failed to fetch certificate", error: e.message });
+      }
+    });
+
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
     console.log(

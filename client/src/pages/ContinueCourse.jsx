@@ -3,6 +3,17 @@ import { useNavigate, useParams, Link } from "react-router";
 import Swal from "sweetalert2";
 import { AuthContext } from "../context/AuthContext";
 
+// 👇 React-PDF
+import {
+  Document,
+  Page,
+  Text,
+  View,
+  StyleSheet,
+  PDFViewer,
+  PDFDownloadLink,
+} from "@react-pdf/renderer";
+
 const ContinueCourse = () => {
   const { user } = useContext(AuthContext);
   const { id: courseId } = useParams();
@@ -300,6 +311,21 @@ const ContinueCourse = () => {
     );
   }
 
+  // ===== Certificate bits =====
+  const certId = makeSimpleCertId(user?.email, courseId);
+  const completionDate = new Date().toLocaleDateString();
+  const score = typeof finalMark === "number" ? finalMark : (me?.completedCourseMarks?.[courseId] ?? null);
+
+  const certificateDoc = (
+    <CertificateDoc
+      studentName={me?.name || "Student"}
+      courseTitle={course?.title || "Course"}
+      dateStr={completionDate}
+      score={typeof score === "number" ? `${score}%` : "—"}
+      certId={certId}
+    />
+  );
+
   return (
     <div className="max-w-7xl mx-auto px-4 pt-24 pb-16">
       <div className="grid grid-cols-12 gap-6">
@@ -399,8 +425,8 @@ const ContinueCourse = () => {
               {phase === "lessons" && `${currentLesson} of ${lessonsCount} lessons completed`}
               {phase === "quizzes" && `${currentQuiz} of ${quizzesCount} quizzes completed`}
               {phase === "done" &&
-                (typeof finalMark === "number"
-                  ? `Course completed • Score: ${finalMark}%`
+                (typeof score === "number"
+                  ? `Course completed • Score: ${score}%`
                   : "Course completed")}
             </p>
 
@@ -426,26 +452,43 @@ const ContinueCourse = () => {
                 setPicked={setPicked}
                 correctIndexOf={correctIndexOf}
                 onSubmit={handleSubmitQuizAnswer}
-                finalMark={finalMark}
+                finalMark={score}
               />
             )}
 
-            {/* Done view quick actions */}
+            {/* Done view + Certificate */}
             {phase === "done" && (
-              <div className="mt-6">
+              <div className="mt-8 space-y-4">
                 <div className="rounded-xl border border-yellow-200 bg-yellow-50 p-4 text-black">
-                  You finished this course. {typeof finalMark === "number" ? `Score: ${finalMark}%` : "🎉"}
+                  You finished this course{typeof score === "number" ? ` • Score: ${score}%` : ""}. 🎉
                 </div>
-                <div className="mt-4 flex gap-3">
+
+                {/* Preview the PDF in-page */}
+                <div className="rounded-xl border border-yellow-200 overflow-hidden">
+                  <PDFViewer style={{ width: "100%", height: 420 }}>
+                    {certificateDoc}
+                  </PDFViewer>
+                </div>
+
+                {/* Download button */}
+                <PDFDownloadLink
+                  document={certificateDoc}
+                  fileName={`Learnly-Certificate-${course?.title?.replace(/\s+/g, "_") || "Course"}.pdf`}
+                  className="inline-block rounded-lg bg-black px-4 py-2 text-white text-sm font-semibold hover:opacity-90"
+                >
+                  {({ loading: pdfLoading }) => (pdfLoading ? "Preparing..." : "Download Certificate")}
+                </PDFDownloadLink>
+
+                <div className="flex gap-3">
                   <Link
                     to="/courses"
-                    className="rounded-lg bg-black px-4 py-2 text-white text-sm font-semibold hover:opacity-90"
+                    className="rounded-lg bg-yellow-400 px-4 py-2 text-black text-sm font-semibold hover:bg-yellow-300"
                   >
                     Browse more courses
                   </Link>
                   <Link
                     to="/studentProfile"
-                    className="rounded-lg bg-yellow-400 px-4 py-2 text-black text-sm font-semibold hover:bg-yellow-300"
+                    className="rounded-lg bg-white px-4 py-2 text-black text-sm font-semibold border border-yellow-300"
                   >
                     Go to Dashboard
                   </Link>
@@ -583,5 +626,105 @@ const QuizView = ({
     </div>
   );
 };
+
+/* ---------------- Certificate (React-PDF) ---------------- */
+
+// simple, semi-stable cert id for demo
+function makeSimpleCertId(email = "", courseId = "") {
+  const namePart = (email.split("@")[0] || "USER").slice(0, 4).toUpperCase();
+  const coursePart = String(courseId).slice(-4).toUpperCase();
+  return `LEARNLY-${namePart}-${coursePart}`;
+}
+
+const pdfStyles = StyleSheet.create({
+  page: {
+    padding: 40,
+    backgroundColor: "#ffffff",
+    fontFamily: "Helvetica",
+  },
+  border: {
+    borderWidth: 4,
+    borderColor: "#FACC15", // yellow-400
+    padding: 20,
+  },
+  header: {
+    textAlign: "center",
+    marginBottom: 24,
+  },
+  brand: {
+    fontSize: 18,
+    color: "#111111",
+    letterSpacing: 1,
+  },
+  title: {
+    fontSize: 28,
+    color: "#111111",
+    marginTop: 6,
+    fontWeight: 700,
+  },
+  body: {
+    marginTop: 20,
+  },
+  label: {
+    fontSize: 12,
+    color: "#222222",
+    marginTop: 10,
+  },
+  value: {
+    fontSize: 16,
+    color: "#000000",
+    marginTop: 2,
+  },
+  bigName: {
+    fontSize: 22,
+    color: "#000000",
+    marginTop: 10,
+    fontWeight: 700,
+  },
+  footerRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginTop: 28,
+    borderTopWidth: 1,
+    borderTopColor: "#E5E7EB",
+    paddingTop: 12,
+  },
+  small: {
+    fontSize: 10,
+    color: "#555555",
+  },
+});
+
+const CertificateDoc = ({ studentName, courseTitle, dateStr, score, certId }) => (
+  <Document>
+    <Page size="A4" style={pdfStyles.page}>
+      <View style={pdfStyles.border}>
+        <View style={pdfStyles.header}>
+          <Text style={pdfStyles.brand}>LEARNLY</Text>
+          <Text style={pdfStyles.title}>Certificate of Completion</Text>
+        </View>
+
+        <View style={pdfStyles.body}>
+          <Text style={pdfStyles.label}>This is to certify that</Text>
+          <Text style={pdfStyles.bigName}>{studentName}</Text>
+
+          <Text style={pdfStyles.label}>has successfully completed the course</Text>
+          <Text style={pdfStyles.value}>{courseTitle}</Text>
+
+          <Text style={pdfStyles.label}>Completion Date</Text>
+          <Text style={pdfStyles.value}>{dateStr}</Text>
+
+          <Text style={pdfStyles.label}>Final Score</Text>
+          <Text style={pdfStyles.value}>{score}</Text>
+        </View>
+
+        <View style={pdfStyles.footerRow}>
+          <Text style={pdfStyles.small}>Certificate ID: {certId}</Text>
+          <Text style={pdfStyles.small}>Powered by Learnly</Text>
+        </View>
+      </View>
+    </Page>
+  </Document>
+);
 
 export default ContinueCourse;
