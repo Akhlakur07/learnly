@@ -6,14 +6,16 @@ const StudentProfile = () => {
   const { user } = useContext(AuthContext);
 
   const [studentData, setStudentData] = useState(null);
-  const [enrolled, setEnrolled] = useState([]);   // only NOT completed
+  const [enrolled, setEnrolled] = useState([]); // only NOT completed
   const [completed, setCompleted] = useState([]); // [{ id, course, score }]
 
   // 1) Load current student's doc
   useEffect(() => {
     if (!user?.email) return;
 
-    fetch(`http://localhost:3000/users/email/${user.email}`)
+    fetch(
+      `https://server-92hoyqb6a-akhlakurs-projects.vercel.app/users/email/${user.email}`
+    )
       .then((res) => res.json())
       .then((data) => setStudentData(data));
   }, [user?.email]);
@@ -22,7 +24,7 @@ const StudentProfile = () => {
   useEffect(() => {
     if (!studentData) return;
 
-    fetch("http://localhost:3000/courses")
+    fetch("https://server-92hoyqb6a-akhlakurs-projects.vercel.app/courses")
       .then((res) => res.json())
       .then((list) => {
         const all = Array.isArray(list) ? list : [];
@@ -75,7 +77,9 @@ const StudentProfile = () => {
           className="w-32 h-32 rounded-full object-cover border-4 border-yellow-200"
         />
         <div className="text-center md:text-left">
-          <h2 className="text-3xl font-extrabold text-black">{studentData.name}</h2>
+          <h2 className="text-3xl font-extrabold text-black">
+            {studentData.name}
+          </h2>
           <p className="text-black/70 mt-1">
             <span className="font-medium">Email:</span> {studentData.email}
           </p>
@@ -95,7 +99,9 @@ const StudentProfile = () => {
 
       {/* Enrolled (NOT completed) */}
       <div className="mt-6">
-        <h3 className="text-xl font-semibold text-black mb-2">Enrolled Courses</h3>
+        <h3 className="text-xl font-semibold text-black mb-2">
+          Enrolled Courses
+        </h3>
 
         {enrolled.length === 0 ? (
           <p className="text-black/70 bg-yellow-50 p-4 rounded italic">
@@ -112,9 +118,14 @@ const StudentProfile = () => {
               {enrolled.map((c) => {
                 const id = c._id?.$oid || c._id;
                 return (
-                  <li key={id} className="grid grid-cols-12 items-center px-4 py-3">
+                  <li
+                    key={id}
+                    className="grid grid-cols-12 items-center px-4 py-3"
+                  >
                     <div className="col-span-8">
-                      <span className="font-semibold text-black">{c.title}</span>
+                      <span className="font-semibold text-black">
+                        {c.title}
+                      </span>
                     </div>
                     <div className="col-span-4 flex justify-end">
                       <Link
@@ -135,7 +146,9 @@ const StudentProfile = () => {
 
       {/* Completed + Score */}
       <div className="mt-8">
-        <h3 className="text-xl font-semibold text-black mb-2">Completed Courses</h3>
+        <h3 className="text-xl font-semibold text-black mb-2">
+          Completed Courses
+        </h3>
 
         {completed.length === 0 ? (
           <p className="text-black/70 bg-yellow-50 p-4 rounded italic">
@@ -151,9 +164,14 @@ const StudentProfile = () => {
 
             <ul className="divide-y divide-yellow-200 bg-white">
               {completed.map(({ id, course, score }) => (
-                <li key={id} className="grid grid-cols-12 items-center px-4 py-3">
+                <li
+                  key={id}
+                  className="grid grid-cols-12 items-center px-4 py-3"
+                >
                   <div className="col-span-7">
-                    <span className="font-semibold text-black">{course.title}</span>
+                    <span className="font-semibold text-black">
+                      {course.title}
+                    </span>
                   </div>
                   <div className="col-span-3 text-right">
                     <span className="text-black/80">

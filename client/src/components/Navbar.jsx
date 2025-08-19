@@ -11,7 +11,9 @@ const Navbar = () => {
 
   // watch auth state
   useEffect(() => {
-    const unsub = onAuthStateChanged(auth, (currentUser) => setUser(currentUser));
+    const unsub = onAuthStateChanged(auth, (currentUser) =>
+      setUser(currentUser)
+    );
     return () => unsub();
   }, []);
 
@@ -21,7 +23,9 @@ const Navbar = () => {
       navigate("/login");
       return;
     }
-    fetch(`http://localhost:3000/users/email/${user.email}`)
+    fetch(
+      `https://server-92hoyqb6a-akhlakurs-projects.vercel.app/users/email/${user.email}`
+    )
       .then((res) => res.json())
       .then((data) => {
         if (data.role === "student") navigate("/studentProfile");
@@ -45,7 +49,9 @@ const Navbar = () => {
           <div className="min-w-[140px]">
             <Link to="/" className="flex items-center gap-3">
               <span className="inline-block h-8 w-8 rounded-lg bg-yellow-400" />
-              <span className="text-2xl font-extrabold text-black leading-none">Learnly</span>
+              <span className="text-2xl font-extrabold text-black leading-none">
+                Learnly
+              </span>
             </Link>
           </div>
 

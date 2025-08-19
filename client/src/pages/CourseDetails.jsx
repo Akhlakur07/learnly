@@ -18,14 +18,14 @@ const CourseDetails = () => {
 
   useEffect(() => {
     if (passed) return;
-    fetch("http://localhost:3000/courses")
+    fetch("https://server-92hoyqb6a-akhlakurs-projects.vercel.app/courses")
       .then((res) => res.json())
       .then((list) => {
         const found = (list || []).find((c) => (c._id?.$oid || c._id) === id);
         setCourse(found || null);
 
         if (found?.instructorEmail) {
-          fetch("http://localhost:3000/users")
+          fetch("https://server-92hoyqb6a-akhlakurs-projects.vercel.app/users")
             .then((r) => r.json())
             .then((users) => {
               const instr = (users || []).find(
@@ -48,7 +48,9 @@ const CourseDetails = () => {
     }
 
     // get current user's doc
-    const res = await fetch(`http://localhost:3000/users/email/${user.email}`);
+    const res = await fetch(
+      `https://server-92hoyqb6a-akhlakurs-projects.vercel.app/users/email/${user.email}`
+    );
     const me = await res.json();
 
     // instructors can't enroll
@@ -90,11 +92,14 @@ const CourseDetails = () => {
     });
 
     if (result.isConfirmed) {
-      const enrollRes = await fetch("http://localhost:3000/users/enroll", {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: user.email, courseId: id }),
-      });
+      const enrollRes = await fetch(
+        "https://server-92hoyqb6a-akhlakurs-projects.vercel.app/users/enroll",
+        {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email: user.email, courseId: id }),
+        }
+      );
       const enrollData = await enrollRes.json();
 
       // backend uses $addToSet, so if nothing changed, user was already enrolled

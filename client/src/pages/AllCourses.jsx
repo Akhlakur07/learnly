@@ -9,13 +9,17 @@ const AllCourses = () => {
   // search + filters
   const [search, setSearch] = useState("");
   const [difficulty, setDifficulty] = useState("All"); // All | Beginner | Intermediate | Advanced
-  const [category, setCategory] = useState("All");     // All or a single category
+  const [category, setCategory] = useState("All"); // All or a single category
 
   // load everything once
   useEffect(() => {
     Promise.all([
-      fetch("http://localhost:3000/courses").then((res) => res.json()),
-      fetch("http://localhost:3000/users").then((res) => res.json()),
+      fetch(
+        "https://server-92hoyqb6a-akhlakurs-projects.vercel.app/courses"
+      ).then((res) => res.json()),
+      fetch(
+        "https://server-92hoyqb6a-akhlakurs-projects.vercel.app/users"
+      ).then((res) => res.json()),
     ])
       .then(([coursesData, usersData]) => {
         setCourses(Array.isArray(coursesData) ? coursesData : []);
@@ -63,7 +67,9 @@ const AllCourses = () => {
 
   const matchesCategory = (course) => {
     if (category === "All") return true;
-    return Array.isArray(course.categories) && course.categories.includes(category);
+    return (
+      Array.isArray(course.categories) && course.categories.includes(category)
+    );
   };
 
   // final filtered list
@@ -84,7 +90,10 @@ const AllCourses = () => {
         <div className="h-6 w-48 bg-yellow-100 rounded mb-4" />
         <div className="space-y-3">
           {[...Array(6)].map((_, i) => (
-            <div key={i} className="h-12 rounded-lg border border-yellow-200 bg-white" />
+            <div
+              key={i}
+              className="h-12 rounded-lg border border-yellow-200 bg-white"
+            />
           ))}
         </div>
       </div>
@@ -169,9 +178,14 @@ const AllCourses = () => {
               const id = course._id?.$oid || course._id;
 
               return (
-                <li key={id} className="grid grid-cols-12 items-center px-4 py-3">
+                <li
+                  key={id}
+                  className="grid grid-cols-12 items-center px-4 py-3"
+                >
                   <div className="col-span-6">
-                    <span className="font-semibold text-black">{course.title}</span>
+                    <span className="font-semibold text-black">
+                      {course.title}
+                    </span>
                     {/* Optional tiny badges under title */}
                     <div className="mt-1 text-xs text-black/70 flex gap-2 flex-wrap">
                       {course.difficulty && (

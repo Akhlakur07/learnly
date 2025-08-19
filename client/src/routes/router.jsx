@@ -14,7 +14,8 @@ import ContinueCourse from "../pages/ContinueCourse";
 const router = createBrowserRouter([
   {
     path: "/",
-    loader: () => fetch("http://localhost:3000/users"),
+    loader: () =>
+      fetch("https://server-92hoyqb6a-akhlakurs-projects.vercel.app/users"),
     Component: Root,
     children: [
       {

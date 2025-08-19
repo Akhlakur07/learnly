@@ -29,7 +29,7 @@ const Register = () => {
           bio,
         };
 
-        fetch("http://localhost:3000/users", {
+        fetch("https://server-92hoyqb6a-akhlakurs-projects.vercel.app/users", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -58,10 +58,7 @@ const Register = () => {
         </h2>
 
         <div className="mb-5">
-          <label
-            htmlFor="name"
-            className="block font-semibold mb-1"
-          >
+          <label htmlFor="name" className="block font-semibold mb-1">
             Full Name
           </label>
           <input
@@ -74,10 +71,7 @@ const Register = () => {
         </div>
 
         <div className="mb-5">
-          <label
-            htmlFor="email"
-            className="block font-semibold mb-1 "
-          >
+          <label htmlFor="email" className="block font-semibold mb-1 ">
             Email Address
           </label>
           <input
@@ -90,10 +84,7 @@ const Register = () => {
         </div>
 
         <div className="mb-5">
-          <label
-            htmlFor="password"
-            className="block font-semibold mb-1 "
-          >
+          <label htmlFor="password" className="block font-semibold mb-1 ">
             Password
           </label>
           <input
@@ -106,10 +97,7 @@ const Register = () => {
         </div>
 
         <div className="mb-5">
-          <label
-            htmlFor="photo"
-            className="block font-semibold mb-1 "
-          >
+          <label htmlFor="photo" className="block font-semibold mb-1 ">
             Photo URL
           </label>
           <input
@@ -122,10 +110,7 @@ const Register = () => {
         </div>
 
         <div className="mb-5">
-          <label
-            htmlFor="bio"
-            className="block font-semibold mb-1 "
-          >
+          <label htmlFor="bio" className="block font-semibold mb-1 ">
             Bio
           </label>
           <textarea
@@ -138,10 +123,7 @@ const Register = () => {
         </div>
 
         <div className="mb-6">
-          <label
-            htmlFor="role"
-            className="block font-semibold mb-1"
-          >
+          <label htmlFor="role" className="block font-semibold mb-1">
             Select Role
           </label>
           <select

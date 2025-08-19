@@ -25,8 +25,8 @@ const ContinueCourse = () => {
 
   // stored progress (next to do)
   const [currentLesson, setCurrentLesson] = useState(0); // next lesson to watch
-  const [currentQuiz, setCurrentQuiz] = useState(0);     // next quiz to take
-  const [phase, setPhase] = useState("lessons");         // "lessons" | "quizzes" | "done"
+  const [currentQuiz, setCurrentQuiz] = useState(0); // next quiz to take
+  const [phase, setPhase] = useState("lessons"); // "lessons" | "quizzes" | "done"
 
   // UI selection in the right panel
   const [selectedType, setSelectedType] = useState("lesson"); // "lesson" | "quiz"
@@ -47,8 +47,12 @@ const ContinueCourse = () => {
     }
 
     Promise.all([
-      fetch(`http://localhost:3000/courses/${courseId}`).then((r) => r.json()),
-      fetch(`http://localhost:3000/users/email/${user.email}`).then((r) => r.json()),
+      fetch(
+        `https://server-92hoyqb6a-akhlakurs-projects.vercel.app/courses/${courseId}`
+      ).then((r) => r.json()),
+      fetch(
+        `https://server-92hoyqb6a-akhlakurs-projects.vercel.app/users/email/${user.email}`
+      ).then((r) => r.json()),
     ])
       .then(([courseData, userData]) => {
         setCourse(courseData || null);
@@ -71,13 +75,23 @@ const ContinueCourse = () => {
 
         // progress + counts
         const p = userData?.progress?.[courseId] || {};
-        const lessonsN = Array.isArray(courseData?.videos) ? courseData.videos.length : 0;
-        const quizzesN = Array.isArray(courseData?.quizzes) ? courseData.quizzes.length : 0;
+        const lessonsN = Array.isArray(courseData?.videos)
+          ? courseData.videos.length
+          : 0;
+        const quizzesN = Array.isArray(courseData?.quizzes)
+          ? courseData.quizzes.length
+          : 0;
 
         const toNum = (v) => (typeof v === "number" ? v : Number(v ?? 0)) || 0;
 
-        const lessonIndex = Math.min(Math.max(toNum(p.currentLesson), 0), Math.max(lessonsN - 1, 0));
-        const quizIndex   = Math.min(Math.max(toNum(p.currentQuiz), 0), Math.max(quizzesN - 1, 0));
+        const lessonIndex = Math.min(
+          Math.max(toNum(p.currentLesson), 0),
+          Math.max(lessonsN - 1, 0)
+        );
+        const quizIndex = Math.min(
+          Math.max(toNum(p.currentQuiz), 0),
+          Math.max(quizzesN - 1, 0)
+        );
         const savedCorrect = Math.max(toNum(p.correctCount), 0);
 
         const isCompleted =
@@ -92,9 +106,11 @@ const ContinueCourse = () => {
         } else if (p.phase === "quizzes") {
           nextPhase = quizzesN > 0 ? "quizzes" : "done";
         } else if (p.phase === "lessons") {
-          nextPhase = lessonsN > 0 ? "lessons" : (quizzesN > 0 ? "quizzes" : "done");
+          nextPhase =
+            lessonsN > 0 ? "lessons" : quizzesN > 0 ? "quizzes" : "done";
         } else {
-          nextPhase = lessonsN > 0 ? "lessons" : (quizzesN > 0 ? "quizzes" : "done");
+          nextPhase =
+            lessonsN > 0 ? "lessons" : quizzesN > 0 ? "quizzes" : "done";
         }
 
         setPhase(nextPhase);
@@ -131,11 +147,14 @@ const ContinueCourse = () => {
 
   // helpers
   const saveProgress = async (next) => {
-    await fetch("http://localhost:3000/users/progress", {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email: user.email, courseId, progress: next }),
-    });
+    await fetch(
+      "https://server-92hoyqb6a-akhlakurs-projects.vercel.app/users/progress",
+      {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: user.email, courseId, progress: next }),
+      }
+    );
   };
 
   const correctIndexOf = (quiz) => {
@@ -153,11 +172,14 @@ const ContinueCourse = () => {
     setFinalMark(mark);
 
     // store both: keep completedCourses array, and map of marks
-    await fetch("http://localhost:3000/users/completeCourse", {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email: user.email, courseId, mark }),
-    });
+    await fetch(
+      "https://server-92hoyqb6a-akhlakurs-projects.vercel.app/users/completeCourse",
+      {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: user.email, courseId, mark }),
+      }
+    );
 
     // also store progress as done
     await saveProgress({
@@ -234,26 +256,43 @@ const ContinueCourse = () => {
 
   const embedUrl = (url = "") => {
     if (url.includes("watch?v=")) return url.replace("watch?v=", "embed/");
-    if (url.includes("youtu.be/")) return url.replace("youtu.be/", "www.youtube.com/embed/");
+    if (url.includes("youtu.be/"))
+      return url.replace("youtu.be/", "www.youtube.com/embed/");
     return url;
   };
 
   const handleMarkLessonWatched = async () => {
-    if (!(phase === "lessons" && selectedType === "lesson" && selectedIndex === currentLesson)) {
+    if (
+      !(
+        phase === "lessons" &&
+        selectedType === "lesson" &&
+        selectedIndex === currentLesson
+      )
+    ) {
       return;
     }
 
     const atLastLesson = currentLesson >= lessonsCount - 1;
 
     if (!atLastLesson) {
-      const next = { phase: "lessons", currentLesson: currentLesson + 1, currentQuiz, correctCount };
+      const next = {
+        phase: "lessons",
+        currentLesson: currentLesson + 1,
+        currentQuiz,
+        correctCount,
+      };
       setCurrentLesson((n) => n + 1);
       await saveProgress(next);
       setSelectedType("lesson");
       setSelectedIndex(currentLesson + 1);
     } else {
       if (quizzesCount > 0) {
-        const next = { phase: "quizzes", currentLesson, currentQuiz: 0, correctCount };
+        const next = {
+          phase: "quizzes",
+          currentLesson,
+          currentQuiz: 0,
+          correctCount,
+        };
         setPhase("quizzes");
         setCurrentQuiz(0);
         await saveProgress(next);
@@ -266,7 +305,13 @@ const ContinueCourse = () => {
   };
 
   const handleSubmitQuizAnswer = async () => {
-    if (!(phase === "quizzes" && selectedType === "quiz" && selectedIndex === currentQuiz)) {
+    if (
+      !(
+        phase === "quizzes" &&
+        selectedType === "quiz" &&
+        selectedIndex === currentQuiz
+      )
+    ) {
       return;
     }
     if (!picked) {
@@ -289,14 +334,24 @@ const ContinueCourse = () => {
     const atLastQuiz = currentQuiz >= quizzesCount - 1;
 
     if (!atLastQuiz) {
-      const next = { phase: "quizzes", currentLesson, currentQuiz: currentQuiz + 1, correctCount: newCorrectCount };
+      const next = {
+        phase: "quizzes",
+        currentLesson,
+        currentQuiz: currentQuiz + 1,
+        correctCount: newCorrectCount,
+      };
       setCurrentQuiz((n) => n + 1);
       await saveProgress(next);
       setSelectedType("quiz");
       setSelectedIndex(currentQuiz + 1);
       setPicked("");
     } else {
-      await saveProgress({ phase: "quizzes", currentLesson, currentQuiz, correctCount: newCorrectCount });
+      await saveProgress({
+        phase: "quizzes",
+        currentLesson,
+        currentQuiz,
+        correctCount: newCorrectCount,
+      });
       await completeCourse();
     }
   };
@@ -314,7 +369,10 @@ const ContinueCourse = () => {
   // ===== Certificate bits =====
   const certId = makeSimpleCertId(user?.email, courseId);
   const completionDate = new Date().toLocaleDateString();
-  const score = typeof finalMark === "number" ? finalMark : (me?.completedCourseMarks?.[courseId] ?? null);
+  const score =
+    typeof finalMark === "number"
+      ? finalMark
+      : me?.completedCourseMarks?.[courseId] ?? null;
 
   const certificateDoc = (
     <CertificateDoc
@@ -332,12 +390,16 @@ const ContinueCourse = () => {
         {/* Sidebar */}
         <aside className="col-span-12 lg:col-span-4">
           <div className="rounded-2xl border border-yellow-200 bg-white p-4">
-            <h2 className="text-xl font-extrabold text-black">{course.title}</h2>
+            <h2 className="text-xl font-extrabold text-black">
+              {course.title}
+            </h2>
 
             {/* Lessons list */}
             {lessonsCount > 0 && (
               <>
-                <h3 className="mt-4 text-sm font-bold text-black/80">Lessons</h3>
+                <h3 className="mt-4 text-sm font-bold text-black/80">
+                  Lessons
+                </h3>
                 <ul className="mt-2 space-y-2">
                   {lessons.map((l, i) => {
                     const st = statusOfLesson(i);
@@ -353,7 +415,11 @@ const ContinueCourse = () => {
                             current
                               ? "border-yellow-400 bg-yellow-50"
                               : "border-yellow-200 bg-white"
-                          } ${locked ? "opacity-60 cursor-not-allowed" : "hover:bg-yellow-50"}`}
+                          } ${
+                            locked
+                              ? "opacity-60 cursor-not-allowed"
+                              : "hover:bg-yellow-50"
+                          }`}
                         >
                           <div className="flex items-center gap-2">
                             <span className="text-xs font-semibold px-2 py-0.5 rounded bg-yellow-100 text-black">
@@ -377,7 +443,9 @@ const ContinueCourse = () => {
             {/* Quizzes list */}
             {quizzesCount > 0 && (
               <>
-                <h3 className="mt-6 text-sm font-bold text-black/80">Quizzes</h3>
+                <h3 className="mt-6 text-sm font-bold text-black/80">
+                  Quizzes
+                </h3>
                 <ul className="mt-2 space-y-2">
                   {quizzes.map((q, i) => {
                     const st = statusOfQuiz(i);
@@ -393,15 +461,23 @@ const ContinueCourse = () => {
                             current
                               ? "border-yellow-400 bg-yellow-50"
                               : "border-yellow-200 bg-white"
-                          } ${locked ? "opacity-60 cursor-not-allowed" : "hover:bg-yellow-50"}`}
+                          } ${
+                            locked
+                              ? "opacity-60 cursor-not-allowed"
+                              : "hover:bg-yellow-50"
+                          }`}
                         >
                           <div className="flex items-center gap-2">
                             <span className="text-xs font-semibold px-2 py-0.5 rounded bg-yellow-100 text-black">
                               Q{i + 1}
                             </span>
                             <span className="flex-1 text-sm text-black">
-                              {q?.question ? q.question.slice(0, 60) : `Quiz ${i + 1}`}
-                              {q?.question && q.question.length > 60 ? "..." : ""}
+                              {q?.question
+                                ? q.question.slice(0, 60)
+                                : `Quiz ${i + 1}`}
+                              {q?.question && q.question.length > 60
+                                ? "..."
+                                : ""}
                             </span>
                             <span className="text-xs">
                               {completed ? "✅" : locked ? "🔒" : "▶️"}
@@ -422,8 +498,10 @@ const ContinueCourse = () => {
           <div className="rounded-2xl border border-yellow-200 bg-white p-6">
             {/* Header: progress summary */}
             <p className="text-black/70 text-sm mb-4">
-              {phase === "lessons" && `${currentLesson} of ${lessonsCount} lessons completed`}
-              {phase === "quizzes" && `${currentQuiz} of ${quizzesCount} quizzes completed`}
+              {phase === "lessons" &&
+                `${currentLesson} of ${lessonsCount} lessons completed`}
+              {phase === "quizzes" &&
+                `${currentQuiz} of ${quizzesCount} quizzes completed`}
               {phase === "done" &&
                 (typeof score === "number"
                   ? `Course completed • Score: ${score}%`
@@ -435,7 +513,9 @@ const ContinueCourse = () => {
               <LessonView
                 lesson={lessons[selectedIndex]}
                 index={selectedIndex}
-                isCurrent={phase === "lessons" && selectedIndex === currentLesson}
+                isCurrent={
+                  phase === "lessons" && selectedIndex === currentLesson
+                }
                 embedUrl={embedUrl}
                 onMarkWatched={handleMarkLessonWatched}
               />
@@ -460,7 +540,8 @@ const ContinueCourse = () => {
             {phase === "done" && (
               <div className="mt-8 space-y-4">
                 <div className="rounded-xl border border-yellow-200 bg-yellow-50 p-4 text-black">
-                  You finished this course{typeof score === "number" ? ` • Score: ${score}%` : ""}. 🎉
+                  You finished this course
+                  {typeof score === "number" ? ` • Score: ${score}%` : ""}. 🎉
                 </div>
 
                 {/* Preview the PDF in-page */}
@@ -473,10 +554,14 @@ const ContinueCourse = () => {
                 {/* Download button */}
                 <PDFDownloadLink
                   document={certificateDoc}
-                  fileName={`Learnly-Certificate-${course?.title?.replace(/\s+/g, "_") || "Course"}.pdf`}
+                  fileName={`Learnly-Certificate-${
+                    course?.title?.replace(/\s+/g, "_") || "Course"
+                  }.pdf`}
                   className="inline-block rounded-lg bg-black px-4 py-2 text-white text-sm font-semibold hover:opacity-90"
                 >
-                  {({ loading: pdfLoading }) => (pdfLoading ? "Preparing..." : "Download Certificate")}
+                  {({ loading: pdfLoading }) =>
+                    pdfLoading ? "Preparing..." : "Download Certificate"
+                  }
                 </PDFDownloadLink>
 
                 <div className="flex gap-3">
@@ -511,7 +596,8 @@ const LessonView = ({ lesson, index, isCurrent, embedUrl, onMarkWatched }) => {
       <p className="mt-1 text-black/70">{lesson?.title || "Untitled lesson"}</p>
 
       {lesson?.url ? (
-        (lesson.url.includes("youtube.com") || lesson.url.includes("youtu.be")) ? (
+        lesson.url.includes("youtube.com") ||
+        lesson.url.includes("youtu.be") ? (
           <div className="mt-4 aspect-video w-full overflow-hidden rounded-xl border border-yellow-200">
             <iframe
               className="w-full h-full"
@@ -543,7 +629,9 @@ const LessonView = ({ lesson, index, isCurrent, embedUrl, onMarkWatched }) => {
         </button>
       )}
       {!isCurrent && (
-        <p className="mt-3 text-xs text-black/60">You can rewatch completed lessons anytime.</p>
+        <p className="mt-3 text-xs text-black/60">
+          You can rewatch completed lessons anytime.
+        </p>
       )}
     </div>
   );
@@ -577,7 +665,9 @@ const QuizView = ({
               <div
                 key={i}
                 className={`flex items-center justify-between rounded-lg border px-3 py-2 text-sm ${
-                  isCorrect ? "bg-yellow-100 border-yellow-400" : "bg-white border-yellow-200"
+                  isCorrect
+                    ? "bg-yellow-100 border-yellow-400"
+                    : "bg-white border-yellow-200"
                 }`}
               >
                 <span className="text-black">{opt}</span>
@@ -616,7 +706,8 @@ const QuizView = ({
         </button>
       ) : isDone ? (
         <p className="mt-3 text-xs text-black/60">
-          Course completed. Showing the answer key{typeof finalMark === "number" ? ` • Your score: ${finalMark}%` : ""}.
+          Course completed. Showing the answer key
+          {typeof finalMark === "number" ? ` • Your score: ${finalMark}%` : ""}.
         </p>
       ) : (
         <p className="mt-3 text-xs text-black/60">
@@ -695,7 +786,13 @@ const pdfStyles = StyleSheet.create({
   },
 });
 
-const CertificateDoc = ({ studentName, courseTitle, dateStr, score, certId }) => (
+const CertificateDoc = ({
+  studentName,
+  courseTitle,
+  dateStr,
+  score,
+  certId,
+}) => (
   <Document>
     <Page size="A4" style={pdfStyles.page}>
       <View style={pdfStyles.border}>
@@ -708,7 +805,9 @@ const CertificateDoc = ({ studentName, courseTitle, dateStr, score, certId }) =>
           <Text style={pdfStyles.label}>This is to certify that</Text>
           <Text style={pdfStyles.bigName}>{studentName}</Text>
 
-          <Text style={pdfStyles.label}>has successfully completed the course</Text>
+          <Text style={pdfStyles.label}>
+            has successfully completed the course
+          </Text>
           <Text style={pdfStyles.value}>{courseTitle}</Text>
 
           <Text style={pdfStyles.label}>Completion Date</Text>

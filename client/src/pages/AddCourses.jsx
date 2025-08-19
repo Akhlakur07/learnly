@@ -14,8 +14,8 @@ const AddCourses = () => {
   // form
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
-  const [difficulty, setDifficulty] = useState("");          // NEW
-  const [categoriesText, setCategoriesText] = useState("");  // NEW (comma-separated)
+  const [difficulty, setDifficulty] = useState(""); // NEW
+  const [categoriesText, setCategoriesText] = useState(""); // NEW (comma-separated)
   const [videos, setVideos] = useState([{ title: "", url: "" }]);
   const [quizzes, setQuizzes] = useState([
     { question: "", options: ["", "", "", ""], correctAnswer: "" },
@@ -27,15 +27,19 @@ const AddCourses = () => {
       setLoadingRole(false);
       return;
     }
-    fetch(`http://localhost:3000/users/email/${user.email}`)
+    fetch(
+      `https://server-92hoyqb6a-akhlakurs-projects.vercel.app/users/email/${user.email}`
+    )
       .then((res) => res.json())
       .then((data) => setUserDoc(data))
       .finally(() => setLoadingRole(false));
   }, [user?.email]);
 
   // videos
-  const handleAddVideoField = () => setVideos((v) => [...v, { title: "", url: "" }]);
-  const handleRemoveVideoField = (index) => setVideos((v) => v.filter((_, i) => i !== index));
+  const handleAddVideoField = () =>
+    setVideos((v) => [...v, { title: "", url: "" }]);
+  const handleRemoveVideoField = (index) =>
+    setVideos((v) => v.filter((_, i) => i !== index));
   const handleVideoChange = (index, field, value) =>
     setVideos((v) => {
       const next = [...v];
@@ -50,10 +54,14 @@ const AddCourses = () => {
       next[index][field] = value;
       return next;
     });
-    
+
   const handleAddQuiz = () =>
-    setQuizzes((q) => [...q, { question: "", options: ["", "", "", ""], correctAnswer: "" }]);
-  const handleRemoveQuiz = (index) => setQuizzes((q) => q.filter((_, i) => i !== index));
+    setQuizzes((q) => [
+      ...q,
+      { question: "", options: ["", "", "", ""], correctAnswer: "" },
+    ]);
+  const handleRemoveQuiz = (index) =>
+    setQuizzes((q) => q.filter((_, i) => i !== index));
 
   const handleAddCourse = (e) => {
     e.preventDefault();
@@ -68,13 +76,13 @@ const AddCourses = () => {
       title,
       description,
       instructorEmail: user?.email,
-      difficulty,         // NEW
-      categories,         // NEW
+      difficulty, // NEW
+      categories, // NEW
       videos: videos.filter((v) => v.url.trim() !== ""),
       quizzes: quizzes.filter((q) => q.question.trim() !== ""),
     };
 
-    fetch("http://localhost:3000/courses", {
+    fetch("https://server-92hoyqb6a-akhlakurs-projects.vercel.app/courses", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(newCourse),
@@ -107,7 +115,9 @@ const AddCourses = () => {
 
   return (
     <div className="max-w-2xl mx-auto mt-24 p-6 bg-white rounded-2xl border border-yellow-200 shadow-[0_10px_30px_rgba(0,0,0,0.06)] mb-24">
-      <h2 className="text-2xl font-extrabold mb-4 text-black">Add New Course</h2>
+      <h2 className="text-2xl font-extrabold mb-4 text-black">
+        Add New Course
+      </h2>
 
       <form onSubmit={handleAddCourse} className="text-black">
         {/* Title */}
@@ -162,19 +172,26 @@ const AddCourses = () => {
             className="w-full border border-yellow-300 px-3 py-2 rounded focus:outline-none focus:ring-2 focus:ring-yellow-400"
             placeholder="e.g. DSA, Algorithms, Interview"
           />
-          <p className="mt-1 text-xs text-black/60">Separate with commas. Add one or many.</p>
+          <p className="mt-1 text-xs text-black/60">
+            Separate with commas. Add one or many.
+          </p>
         </div>
 
         {/* Videos */}
         <div className="mb-6">
           <h3 className="text-lg font-semibold mb-2">Lessons</h3>
           {videos.map((video, index) => (
-            <div key={index} className="border border-yellow-200 p-3 mb-3 rounded-xl bg-white">
+            <div
+              key={index}
+              className="border border-yellow-200 p-3 mb-3 rounded-xl bg-white"
+            >
               <label className="block font-medium mb-1">Lesson Title</label>
               <input
                 type="text"
                 value={video.title}
-                onChange={(e) => handleVideoChange(index, "title", e.target.value)}
+                onChange={(e) =>
+                  handleVideoChange(index, "title", e.target.value)
+                }
                 className="w-full border border-yellow-300 px-3 py-2 mb-2 rounded focus:outline-none focus:ring-2 focus:ring-yellow-400"
                 placeholder="e.g. Introduction"
               />
@@ -182,7 +199,9 @@ const AddCourses = () => {
               <input
                 type="url"
                 value={video.url}
-                onChange={(e) => handleVideoChange(index, "url", e.target.value)}
+                onChange={(e) =>
+                  handleVideoChange(index, "url", e.target.value)
+                }
                 className="w-full border border-yellow-300 px-3 py-2 rounded focus:outline-none focus:ring-2 focus:ring-yellow-400"
                 placeholder="https://youtube.com/..."
               />
@@ -190,7 +209,7 @@ const AddCourses = () => {
                 <button
                   type="button"
                   onClick={() => handleRemoveVideoField(index)}
-                className="mt-2 text-sm font-semibold text-red-600 hover:underline"
+                  className="mt-2 text-sm font-semibold text-red-600 hover:underline"
                 >
                   Remove Lesson
                 </button>
@@ -210,12 +229,17 @@ const AddCourses = () => {
         <div className="mb-6">
           <h3 className="text-lg font-semibold mb-2">Quiz Questions</h3>
           {quizzes.map((quiz, index) => (
-            <div key={index} className="border border-yellow-200 p-3 mb-3 rounded-xl bg-white">
+            <div
+              key={index}
+              className="border border-yellow-200 p-3 mb-3 rounded-xl bg-white"
+            >
               <label className="block font-medium mb-1">Question</label>
               <input
                 type="text"
                 value={quiz.question}
-                onChange={(e) => handleQuizChange(index, "question", e.target.value)}
+                onChange={(e) =>
+                  handleQuizChange(index, "question", e.target.value)
+                }
                 className="w-full border border-yellow-300 px-3 py-2 mb-2 rounded focus:outline-none focus:ring-2 focus:ring-yellow-400"
                 placeholder="Enter quiz question"
                 required
@@ -241,7 +265,9 @@ const AddCourses = () => {
               <label className="block font-medium mt-2">Correct Answer</label>
               <select
                 value={quiz.correctAnswer}
-                onChange={(e) => handleQuizChange(index, "correctAnswer", e.target.value)}
+                onChange={(e) =>
+                  handleQuizChange(index, "correctAnswer", e.target.value)
+                }
                 className="w-full border border-yellow-300 px-3 py-2 rounded focus:outline-none focus:ring-2 focus:ring-yellow-400"
                 required
               >
