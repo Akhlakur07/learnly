@@ -251,6 +251,22 @@ async function run() {
       res.send(result);
     });
 
+    app.patch("/users/email/:email", async (req, res) => {
+      const email = req.params.email;
+      const { name, bio, photo } = req.body;
+
+      const update = {};
+      if (name !== undefined) update.name = name;
+      if (bio !== undefined) update.bio = bio;
+      if (photo !== undefined) update.photo = photo;
+
+      const result = await userCollection.updateOne(
+        { email },
+        { $set: update }
+      );
+      res.send({ ok: true, modifiedCount: result.modifiedCount });
+    });
+
     console.log("MongoDB initialized.");
   } finally {
     // Do not close client because server should keep running

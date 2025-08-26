@@ -9,13 +9,22 @@ const StudentProfile = () => {
   const [enrolled, setEnrolled] = useState([]); // only NOT completed
   const [completed, setCompleted] = useState([]); // [{ id, course, score }]
 
+  // edit state
+  const [editing, setEditing] = useState(false);
+  const [newName, setNewName] = useState("");
+  const [newBio, setNewBio] = useState("");
+
   // 1) Load current student's doc
   useEffect(() => {
     if (!user?.email) return;
 
     fetch(`https://server-blush-two-79.vercel.app/users/email/${user.email}`)
       .then((res) => res.json())
-      .then((data) => setStudentData(data));
+      .then((data) => {
+        setStudentData(data);
+        setNewName(data?.name || "");
+        setNewBio(data?.bio || "");
+      });
   }, [user?.email]);
 
   // 2) After we have the student, load all courses once and build both lists
@@ -57,6 +66,19 @@ const StudentProfile = () => {
       });
   }, [studentData]);
 
+  const handleSave = () => {
+    fetch(`https://server-blush-two-79.vercel.app/users/email/${user.email}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name: newName, bio: newBio }),
+    })
+      .then((res) => res.json())
+      .then(() => {
+        setStudentData((prev) => ({ ...prev, name: newName, bio: newBio }));
+        setEditing(false);
+      });
+  };
+
   if (!studentData) {
     return (
       <div className="text-center mt-24 text-black font-semibold">
@@ -74,26 +96,72 @@ const StudentProfile = () => {
           alt="student"
           className="w-32 h-32 rounded-full object-cover border-4 border-yellow-200"
         />
-        <div className="text-center md:text-left">
-          <h2 className="text-3xl font-extrabold text-black">
-            {studentData.name}
-          </h2>
-          <p className="text-black/70 mt-1">
-            <span className="font-medium">Email:</span> {studentData.email}
-          </p>
-          <p className="text-black/70">
-            <span className="font-medium">Role:</span> {studentData.role}
-          </p>
+        <div className="text-center md:text-left w-full">
+          {editing ? (
+            <div className="space-y-3">
+              <input
+                className="w-full border border-yellow-300 rounded px-3 py-2"
+                value={newName}
+                onChange={(e) => setNewName(e.target.value)}
+                placeholder="Your name"
+              />
+              <textarea
+                className="w-full border border-yellow-300 rounded px-3 py-2"
+                rows={3}
+                value={newBio}
+                onChange={(e) => setNewBio(e.target.value)}
+                placeholder="Your bio"
+              />
+              <div className="flex gap-2">
+                <button
+                  onClick={handleSave}
+                  className="rounded-lg bg-black text-white px-4 py-2 font-semibold hover:opacity-90"
+                >
+                  Save
+                </button>
+                <button
+                  onClick={() => {
+                    setNewName(studentData.name || "");
+                    setNewBio(studentData.bio || "");
+                    setEditing(false);
+                  }}
+                  className="rounded-lg bg-yellow-400 text-black px-4 py-2 font-semibold hover:bg-yellow-300"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          ) : (
+            <>
+              <h2 className="text-3xl font-extrabold text-black">
+                {studentData.name}
+              </h2>
+              <p className="text-black/70 mt-1">
+                <span className="font-medium">Email:</span> {studentData.email}
+              </p>
+              <p className="text-black/70">
+                <span className="font-medium">Role:</span> {studentData.role}
+              </p>
+              <button
+                onClick={() => setEditing(true)}
+                className="mt-3 rounded-lg bg-yellow-400 text-black px-4 py-2 text-sm font-semibold hover:bg-yellow-300"
+              >
+                Edit Profile
+              </button>
+            </>
+          )}
         </div>
       </div>
 
       {/* Bio */}
-      <div className="mt-6">
-        <h3 className="text-xl font-semibold text-black mb-2">Bio</h3>
-        <p className="text-black/80 leading-relaxed bg-yellow-50 p-4 rounded">
-          {studentData.bio || "No bio provided."}
-        </p>
-      </div>
+      {!editing && (
+        <div className="mt-6">
+          <h3 className="text-xl font-semibold text-black mb-2">Bio</h3>
+          <p className="text-black/80 leading-relaxed bg-yellow-50 p-4 rounded">
+            {studentData.bio || "No bio provided."}
+          </p>
+        </div>
+      )}
 
       {/* Enrolled (NOT completed) */}
       <div className="mt-6">
