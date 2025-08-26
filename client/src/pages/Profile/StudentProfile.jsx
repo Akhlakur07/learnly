@@ -13,9 +13,7 @@ const StudentProfile = () => {
   useEffect(() => {
     if (!user?.email) return;
 
-    fetch(
-      `https://server-92hoyqb6a-akhlakurs-projects.vercel.app/users/email/${user.email}`
-    )
+    fetch(`https://server-blush-two-79.vercel.app/users/email/${user.email}`)
       .then((res) => res.json())
       .then((data) => setStudentData(data));
   }, [user?.email]);
@@ -24,7 +22,7 @@ const StudentProfile = () => {
   useEffect(() => {
     if (!studentData) return;
 
-    fetch("https://server-92hoyqb6a-akhlakurs-projects.vercel.app/courses")
+    fetch("https://server-blush-two-79.vercel.app/courses")
       .then((res) => res.json())
       .then((list) => {
         const all = Array.isArray(list) ? list : [];

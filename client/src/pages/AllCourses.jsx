@@ -14,12 +14,12 @@ const AllCourses = () => {
   // load everything once
   useEffect(() => {
     Promise.all([
-      fetch(
-        "https://server-92hoyqb6a-akhlakurs-projects.vercel.app/courses"
-      ).then((res) => res.json()),
-      fetch(
-        "https://server-92hoyqb6a-akhlakurs-projects.vercel.app/users"
-      ).then((res) => res.json()),
+      fetch("https://server-blush-two-79.vercel.app/courses").then((res) =>
+        res.json()
+      ),
+      fetch("https://server-blush-two-79.vercel.app/users").then((res) =>
+        res.json()
+      ),
     ])
       .then(([coursesData, usersData]) => {
         setCourses(Array.isArray(coursesData) ? coursesData : []);

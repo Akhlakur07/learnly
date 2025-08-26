@@ -29,7 +29,7 @@ const Register = () => {
           bio,
         };
 
-        fetch("https://server-92hoyqb6a-akhlakurs-projects.vercel.app/users", {
+        fetch("https://server-blush-two-79.vercel.app/users", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",

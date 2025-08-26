@@ -47,11 +47,11 @@ const ContinueCourse = () => {
     }
 
     Promise.all([
+      fetch(`https://server-blush-two-79.vercel.app/courses/${courseId}`).then(
+        (r) => r.json()
+      ),
       fetch(
-        `https://server-92hoyqb6a-akhlakurs-projects.vercel.app/courses/${courseId}`
-      ).then((r) => r.json()),
-      fetch(
-        `https://server-92hoyqb6a-akhlakurs-projects.vercel.app/users/email/${user.email}`
+        `https://server-blush-two-79.vercel.app/users/email/${user.email}`
       ).then((r) => r.json()),
     ])
       .then(([courseData, userData]) => {
@@ -147,14 +147,11 @@ const ContinueCourse = () => {
 
   // helpers
   const saveProgress = async (next) => {
-    await fetch(
-      "https://server-92hoyqb6a-akhlakurs-projects.vercel.app/users/progress",
-      {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: user.email, courseId, progress: next }),
-      }
-    );
+    await fetch("https://server-blush-two-79.vercel.app/users/progress", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email: user.email, courseId, progress: next }),
+    });
   };
 
   const correctIndexOf = (quiz) => {
@@ -172,14 +169,11 @@ const ContinueCourse = () => {
     setFinalMark(mark);
 
     // store both: keep completedCourses array, and map of marks
-    await fetch(
-      "https://server-92hoyqb6a-akhlakurs-projects.vercel.app/users/completeCourse",
-      {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: user.email, courseId, mark }),
-      }
-    );
+    await fetch("https://server-blush-two-79.vercel.app/users/completeCourse", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email: user.email, courseId, mark }),
+    });
 
     // also store progress as done
     await saveProgress({

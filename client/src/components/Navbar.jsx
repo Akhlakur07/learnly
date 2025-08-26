@@ -23,9 +23,7 @@ const Navbar = () => {
       navigate("/login");
       return;
     }
-    fetch(
-      `https://server-92hoyqb6a-akhlakurs-projects.vercel.app/users/email/${user.email}`
-    )
+    fetch(`https://server-blush-two-79.vercel.app/users/email/${user.email}`)
       .then((res) => res.json())
       .then((data) => {
         if (data.role === "student") navigate("/studentProfile");
@@ -90,7 +88,7 @@ const Navbar = () => {
             {user ? (
               <button
                 onClick={handleLogOut}
-                className="rounded-xl bg-red-500 px-5 py-3 text-white text-sm md:text-base font-semibold hover:opacity-90"
+                className="rounded-xl bg-black px-5 py-3 text-white text-sm md:text-base font-semibold hover:opacity-90"
               >
                 Logout
               </button>

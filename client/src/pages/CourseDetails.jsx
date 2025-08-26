@@ -18,14 +18,14 @@ const CourseDetails = () => {
 
   useEffect(() => {
     if (passed) return;
-    fetch("https://server-92hoyqb6a-akhlakurs-projects.vercel.app/courses")
+    fetch("https://server-blush-two-79.vercel.app/courses")
       .then((res) => res.json())
       .then((list) => {
         const found = (list || []).find((c) => (c._id?.$oid || c._id) === id);
         setCourse(found || null);
 
         if (found?.instructorEmail) {
-          fetch("https://server-92hoyqb6a-akhlakurs-projects.vercel.app/users")
+          fetch("https://server-blush-two-79.vercel.app/users")
             .then((r) => r.json())
             .then((users) => {
               const instr = (users || []).find(
@@ -49,7 +49,7 @@ const CourseDetails = () => {
 
     // get current user's doc
     const res = await fetch(
-      `https://server-92hoyqb6a-akhlakurs-projects.vercel.app/users/email/${user.email}`
+      `https://server-blush-two-79.vercel.app/users/email/${user.email}`
     );
     const me = await res.json();
 
@@ -93,7 +93,7 @@ const CourseDetails = () => {
 
     if (result.isConfirmed) {
       const enrollRes = await fetch(
-        "https://server-92hoyqb6a-akhlakurs-projects.vercel.app/users/enroll",
+        "https://server-blush-two-79.vercel.app/users/enroll",
         {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },

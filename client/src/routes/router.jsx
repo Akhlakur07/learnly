@@ -10,12 +10,12 @@ import AddCourses from "../pages/AddCourses";
 import AllCourses from "../pages/AllCourses";
 import CourseDetails from "../pages/CourseDetails";
 import ContinueCourse from "../pages/ContinueCourse";
+import CreatedCourses from "../pages/Profile/CreatedCourses";
 
 const router = createBrowserRouter([
   {
     path: "/",
-    loader: () =>
-      fetch("https://server-92hoyqb6a-akhlakurs-projects.vercel.app/users"),
+    loader: () => fetch("https://server-blush-two-79.vercel.app/users"),
     Component: Root,
     children: [
       {
@@ -71,6 +71,14 @@ const router = createBrowserRouter([
         element: (
           <PrivateRoute>
             <ContinueCourse></ContinueCourse>
+          </PrivateRoute>
+        ),
+      },
+      {
+        path: "/my-courses",
+        element: (
+          <PrivateRoute>
+            <CreatedCourses></CreatedCourses>
           </PrivateRoute>
         ),
       },

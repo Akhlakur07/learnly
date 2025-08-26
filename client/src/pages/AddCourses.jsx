@@ -27,9 +27,7 @@ const AddCourses = () => {
       setLoadingRole(false);
       return;
     }
-    fetch(
-      `https://server-92hoyqb6a-akhlakurs-projects.vercel.app/users/email/${user.email}`
-    )
+    fetch(`https://server-blush-two-79.vercel.app/users/email/${user.email}`)
       .then((res) => res.json())
       .then((data) => setUserDoc(data))
       .finally(() => setLoadingRole(false));
@@ -82,7 +80,7 @@ const AddCourses = () => {
       quizzes: quizzes.filter((q) => q.question.trim() !== ""),
     };
 
-    fetch("https://server-92hoyqb6a-akhlakurs-projects.vercel.app/courses", {
+    fetch("https://server-blush-two-79.vercel.app/courses", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(newCourse),

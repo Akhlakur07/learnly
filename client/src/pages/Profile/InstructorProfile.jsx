@@ -8,7 +8,7 @@ const InstructorProfile = () => {
 
   useEffect(() => {
     if (user?.email) {
-      fetch(`https://server-92hoyqb6a-akhlakurs-projects.vercel.app/users`)
+      fetch(`https://server-blush-two-79.vercel.app/users`)
         .then((res) => res.json())
         .then((data) => {
           const currentInstructor = data.find(
@@ -19,7 +19,7 @@ const InstructorProfile = () => {
         .catch((err) => console.error("Failed to fetch instructor:", err));
 
       fetch(
-        `https://server-92hoyqb6a-akhlakurs-projects.vercel.app/courses?instructorEmail=${user.email}`
+        `https://server-blush-two-79.vercel.app/courses?instructorEmail=${user.email}`
       )
         .then((res) => res.json())
         .then((data) => setCourses(data))

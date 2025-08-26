@@ -1,0 +1,113 @@
+// src/pages/CreatedCourses.jsx
+import React, { useContext, useEffect, useState } from "react";
+import { Link } from "react-router";
+import { AuthContext } from "../../context/AuthContext";
+
+const CreatedCourses = () => {
+  const { user } = useContext(AuthContext);
+  const [courses, setCourses] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (!user?.email) {
+      setLoading(false);
+      return;
+    }
+
+    const url =
+      "https://server-blush-two-79.vercel.app/courses?instructorEmail=" +(user.email);
+
+    fetch(url)
+      .then((res) => res.json())
+      .then((data) => {
+        setCourses(Array.isArray(data) ? data : []);
+        setLoading(false);
+      });
+  }, [user?.email]);
+
+
+  return (
+    <div className="max-w-5xl mx-auto mt-24 mb-24 px-4">
+      <div className="flex items-center justify-between mb-6">
+        <h1 className="text-3xl font-extrabold text-black">
+          My Created Courses
+        </h1>
+        <Link
+          to="/addCourse"
+          className="px-4 py-2 rounded-lg bg-yellow-400 text-black font-semibold hover:bg-yellow-300"
+        >
+          + Add New Course
+        </Link>
+      </div>
+
+      {loading ? (
+        <div className="grid gap-4 sm:grid-cols-2">
+          {[...Array(4)].map((_, i) => (
+            <div
+              key={i}
+              className="p-4 rounded-2xl border border-yellow-200 bg-white shadow"
+            >
+              <div className="h-6 w-2/3 bg-yellow-100 rounded mb-3" />
+              <div className="h-4 w-1/2 bg-yellow-50 rounded mb-2" />
+              <div className="h-4 w-1/3 bg-yellow-50 rounded" />
+            </div>
+          ))}
+        </div>
+      ) : courses.length === 0 ? (
+        <div className="p-6 rounded-2xl border border-yellow-200 bg-white shadow text-black">
+          <p>You haven’t created any courses yet.</p>
+          <Link
+            to="/addCourse"
+            className="inline-block mt-3 px-4 py-2 rounded-lg bg-yellow-400 text-black font-semibold hover:bg-yellow-300"
+          >
+            Create your first course
+          </Link>
+        </div>
+      ) : (
+        <div className="grid gap-5 sm:grid-cols-2">
+          {courses.map((c) => (
+            <div
+              key={c._id}
+              className="p-5 rounded-2xl border border-yellow-200 bg-white shadow text-black"
+            >
+              <h3 className="text-xl font-bold mb-1">{c.title}</h3>
+              <p className="text-sm text-black/70 mb-3">{c.description}</p>
+
+              <div className="text-sm space-y-1 mb-4">
+                <p>
+                  <span className="font-semibold">Difficulty:</span>{" "}
+                  {c.difficulty || "—"}
+                </p>
+                <p>
+                  <span className="font-semibold">Categories:</span>{" "}
+                  {Array.isArray(c.categories) && c.categories.length > 0
+                    ? c.categories.join(", ")
+                    : "—"}
+                </p>
+                <p>
+                  <span className="font-semibold">Lessons:</span>{" "}
+                  {Array.isArray(c.videos) ? c.videos.length : 0}
+                </p>
+                <p>
+                  <span className="font-semibold">Quizzes:</span>{" "}
+                  {Array.isArray(c.quizzes) ? c.quizzes.length : 0}
+                </p>
+              </div>
+
+              <div className="flex items-center gap-3">
+                <Link
+                  to={`/courses/${c._id}`}
+                  className="px-3 py-2 rounded-lg bg-black text-white font-semibold hover:opacity-90"
+                >
+                  View
+                </Link>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default CreatedCourses;
