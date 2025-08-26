@@ -159,7 +159,7 @@ const CreatedCourses = () => {
                       </ul>
                       {reviews.length > 2 && (
                         <Link
-                          to={`/instructor/courses/${c._id}`}
+                          to={`/courses/reviews/${c._id}`}
                           className="inline-block mt-2 text-xs underline"
                         >
                           View all reviews

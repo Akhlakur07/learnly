@@ -12,6 +12,7 @@ import CourseDetails from "../pages/Student/CourseDetails";
 import ContinueCourse from "../pages/Student/ContinueCourse";
 import CreatedCourses from "../pages/Instructor/CreatedCourses";
 import InstructorCourseDetails from "../pages/Instructor/InstructorCourseDetails";
+import Reviews from "../pages/Instructor/Reviews";
 
 const router = createBrowserRouter([
   {
@@ -88,6 +89,14 @@ const router = createBrowserRouter([
         element: (
           <PrivateRoute>
             <InstructorCourseDetails></InstructorCourseDetails>
+          </PrivateRoute>
+        ),
+      },
+      {
+        path: "/courses/reviews/:id",
+        element: (
+          <PrivateRoute>
+            <Reviews></Reviews>
           </PrivateRoute>
         ),
       },
