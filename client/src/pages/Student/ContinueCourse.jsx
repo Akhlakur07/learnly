@@ -34,6 +34,10 @@ const ContinueCourse = () => {
   const [correctCount, setCorrectCount] = useState(0);
   const [finalMark, setFinalMark] = useState(null);
 
+  // review state
+  const [rating, setRating] = useState(0);
+  const [feedback, setFeedback] = useState("");
+
   useEffect(() => {
     if (!user?.email) {
       navigate("/login");
@@ -51,6 +55,15 @@ const ContinueCourse = () => {
       .then(([courseData, userData]) => {
         setCourse(courseData || null);
         setMe(userData || null);
+
+        // Prefill review if exists
+        const myOldReview = Array.isArray(courseData?.reviews)
+          ? courseData.reviews.find((r) => r.userEmail === userData?.email)
+          : null;
+        if (myOldReview) {
+          setRating(Number(myOldReview.rating) || 0);
+          setFeedback(myOldReview.comment || "");
+        }
 
         const enrolled = Array.isArray(userData?.enrolledCourses)
           ? userData.enrolledCourses.includes(courseId)
@@ -364,6 +377,50 @@ const ContinueCourse = () => {
     />
   );
 
+  // ===== Review helpers =====
+  const submitReview = () => {
+    if (phase !== "done") return;
+    fetch(`https://server-blush-two-79.vercel.app/courses/${courseId}/reviews`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        email: user.email,
+        name: me?.name,
+        rating,
+        comment: feedback,
+      }),
+    })
+      .then((res) => res.json())
+      .then(() => {
+        const nextReview = {
+          userEmail: user.email,
+          name: me?.name,
+          rating,
+          comment: feedback,
+          createdAt: new Date().toISOString(),
+        };
+        setCourse((prev) => {
+          const prevReviews = Array.isArray(prev?.reviews) ? prev.reviews : [];
+          const idx = prevReviews.findIndex((r) => r.userEmail === user.email);
+          let updated = [];
+          if (idx >= 0) {
+            updated = [...prevReviews];
+            updated[idx] = nextReview;
+          } else {
+            updated = [...prevReviews, nextReview];
+          }
+          return { ...prev, reviews: updated };
+        });
+        Swal.fire({
+          icon: "success",
+          title: "Thanks for your feedback!",
+          confirmButtonColor: "#000000",
+        });
+      });
+  };
+
+  const avg = averageRating(course?.reviews);
+
   return (
     <div className="max-w-7xl mx-auto px-4 pt-24 pb-16">
       <div className="grid grid-cols-12 gap-6">
@@ -516,7 +573,7 @@ const ContinueCourse = () => {
               />
             )}
 
-            {/* Done view + Certificate */}
+            {/* Done view + Certificate + Reviews */}
             {phase === "done" && (
               <div className="mt-8 space-y-4">
                 <div className="rounded-xl border border-yellow-200 bg-yellow-50 p-4 text-black">
@@ -544,6 +601,47 @@ const ContinueCourse = () => {
                   }
                 </PDFDownloadLink>
 
+                {/* Reviews */}
+                <div className="rounded-xl border border-yellow-200 bg-white p-4 space-y-4">
+                  <div className="flex items-center justify-between">
+                    <p className="text-sm text-black/70">
+                      Average rating:{" "}
+                      <span className="font-semibold text-black">
+                        {avg} / 5
+                      </span>{" "}
+                      (
+                      {Array.isArray(course?.reviews)
+                        ? course.reviews.length
+                        : 0}
+                      )
+                    </p>
+                    <StarPicker value={avg} onChange={() => {}} readOnly />
+                </div>
+
+                  <div className="pt-2 border-t border-yellow-100">
+                    <h4 className="text-lg font-bold text-black mb-2">
+                      Your review
+                    </h4>
+
+                    <StarPicker value={rating} onChange={setRating} />
+
+                    <textarea
+                      className="mt-3 w-full border border-yellow-300 rounded px-3 py-2 text-sm"
+                      rows={3}
+                      value={feedback}
+                      onChange={(e) => setFeedback(e.target.value)}
+                      placeholder="What did you think of this course?"
+                    />
+
+                    <button
+                      onClick={submitReview}
+                      className="mt-3 rounded-lg bg-black px-4 py-2 text-white text-sm font-semibold hover:opacity-90"
+                    >
+                      Submit Review
+                    </button>
+                  </div>
+                </div>
+
                 <div className="flex gap-3">
                   <Link
                     to="/courses"
@@ -567,7 +665,7 @@ const ContinueCourse = () => {
   );
 };
 
-/* ------- Small presentational helpers to keep file tidy ------- */
+/* ------- Small presentational helpers ------- */
 
 const LessonView = ({ lesson, index, isCurrent, embedUrl, onMarkWatched }) => {
   return (
@@ -698,6 +796,34 @@ const QuizView = ({
   );
 };
 
+/* ------- Reviews helpers ------- */
+
+function averageRating(reviews = []) {
+  if (!Array.isArray(reviews) || reviews.length === 0) return 0;
+  const sum = reviews.reduce((s, r) => s + (Number(r.rating) || 0), 0);
+  return Math.round((sum / reviews.length) * 10) / 10;
+}
+
+const StarPicker = ({ value, onChange, readOnly = false }) => {
+  const stars = [1, 2, 3, 4, 5];
+  return (
+    <div className="flex items-center gap-1">
+      {stars.map((s) => (
+        <button
+          key={s}
+          type="button"
+          onClick={() => !readOnly && onChange(s)}
+          className={`text-2xl ${s <= value ? "text-yellow-400" : "text-black/30"}`}
+          disabled={readOnly}
+          title={`${s} star${s > 1 ? "s" : ""}`}
+        >
+          ★
+        </button>
+      ))}
+    </div>
+  );
+};
+
 /* ---------------- Certificate (React-PDF) ---------------- */
 
 // simple, semi-stable cert id for demo
@@ -715,7 +841,7 @@ const pdfStyles = StyleSheet.create({
   },
   border: {
     borderWidth: 4,
-    borderColor: "#FACC15", // yellow-400
+    borderColor: "#FACC15",
     padding: 20,
   },
   header: {

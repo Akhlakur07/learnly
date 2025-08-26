@@ -210,6 +210,7 @@ async function run() {
         categories: cats,
         videos,
         quizzes,
+        reviews: [],
       };
 
       try {
@@ -265,6 +266,85 @@ async function run() {
         { $set: update }
       );
       res.send({ ok: true, modifiedCount: result.modifiedCount });
+    });
+
+
+    app.post("/courses/:id/reviews", async (req, res) => {
+      const courseId = req.params.id;
+      const { email, name, rating, comment } = req.body;
+
+      try {
+        // simple guard: must have completed the course
+        const user = await userCollection.findOne(
+          { email },
+          { projection: { completedCourses: 1, name: 1 } }
+        );
+        const completed =
+          Array.isArray(user?.completedCourses) &&
+          user.completedCourses.includes(courseId);
+
+        if (!completed) {
+          return res.status(403).send({ message: "Complete the course first" });
+        }
+
+        const review = {
+          userEmail: email,
+          name: name || user?.name || "Student",
+          rating: Number(rating) || 0,
+          comment: comment || "",
+          createdAt: new Date().toISOString(),
+        };
+
+        // if a review by this user exists, update it; otherwise push new
+        const existing = await courseCollection.findOne(
+          { _id: new ObjectId(courseId), "reviews.userEmail": email },
+          { projection: { _id: 1 } }
+        );
+
+        if (existing) {
+          const result = await courseCollection.updateOne(
+            { _id: new ObjectId(courseId), "reviews.userEmail": email },
+            {
+              $set: {
+                "reviews.$.rating": review.rating,
+                "reviews.$.comment": review.comment,
+                "reviews.$.createdAt": review.createdAt,
+                "reviews.$.name": review.name,
+              },
+            }
+          );
+          return res.send({
+            ok: true,
+            updated: true,
+            modifiedCount: result.modifiedCount,
+          });
+        } else {
+          const result = await courseCollection.updateOne(
+            { _id: new ObjectId(courseId) },
+            { $push: { reviews: review } }
+          );
+          return res.send({
+            ok: true,
+            updated: false,
+            modifiedCount: result.modifiedCount,
+          });
+        }
+      } catch (e) {
+        res.status(500).send({ message: "Failed to save review" });
+      }
+    });
+
+    // Get only the reviews for a course (optional helper)
+    app.get("/courses/:id/reviews", async (req, res) => {
+      try {
+        const course = await courseCollection.findOne(
+          { _id: new ObjectId(req.params.id) },
+          { projection: { reviews: 1 } }
+        );
+        res.send(course?.reviews || []);
+      } catch (e) {
+        res.status(500).send({ message: "Failed to fetch reviews" });
+      }
     });
 
     console.log("MongoDB initialized.");
