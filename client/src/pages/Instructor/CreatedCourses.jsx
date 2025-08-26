@@ -2,6 +2,7 @@
 import React, { useContext, useEffect, useState } from "react";
 import { Link } from "react-router";
 import { AuthContext } from "../../context/AuthContext";
+import Swal from "sweetalert2";
 
 const CreatedCourses = () => {
   const { user } = useContext(AuthContext);
@@ -15,7 +16,8 @@ const CreatedCourses = () => {
     }
 
     const url =
-      "https://server-blush-two-79.vercel.app/courses?instructorEmail=" +(user.email);
+      "https://server-blush-two-79.vercel.app/courses?instructorEmail=" +
+      user.email;
 
     fetch(url)
       .then((res) => res.json())
@@ -25,6 +27,31 @@ const CreatedCourses = () => {
       });
   }, [user?.email]);
 
+  // handle delete
+  const handleDelete = (id) => {
+    Swal.fire({
+      title: "Are you sure?",
+      text: "This course will be permanently deleted!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
+      confirmButtonText: "Yes, delete it!",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        fetch(`https://server-blush-two-79.vercel.app/courses/${id}`, {
+          method: "DELETE",
+        })
+          .then((res) => res.json())
+          .then((data) => {
+            if (data.deletedCount > 0) {
+              Swal.fire("Deleted!", "Your course has been deleted.", "success");
+              setCourses(courses.filter((c) => c._id !== id));
+            }
+          });
+      }
+    });
+  };
 
   return (
     <div className="max-w-5xl mx-auto mt-24 mb-24 px-4">
@@ -96,11 +123,17 @@ const CreatedCourses = () => {
 
               <div className="flex items-center gap-3">
                 <Link
-                  to={`/courses/${c._id}`}
+                  to={`/instructor/courses/${c._id}`}
                   className="px-3 py-2 rounded-lg bg-black text-white font-semibold hover:opacity-90"
                 >
                   View
                 </Link>
+                <button
+                  onClick={() => handleDelete(c._id)}
+                  className="px-3 py-2 rounded-lg bg-red-600 text-white font-semibold hover:bg-red-500"
+                >
+                  Delete
+                </button>
               </div>
             </div>
           ))}

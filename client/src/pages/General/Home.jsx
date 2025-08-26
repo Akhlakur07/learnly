@@ -3,8 +3,14 @@ import { Link } from "react-router";
 import Lottie from "lottie-react";
 // eslint-disable-next-line no-unused-vars
 import { motion } from "framer-motion";
-import { PlayCircle, Sparkles, CheckCircle2, ArrowRight, Shield } from "lucide-react";
-import bannerLottie from "../assets/lottie/STUDENT.json";
+import {
+  PlayCircle,
+  Sparkles,
+  CheckCircle2,
+  ArrowRight,
+  Shield,
+} from "lucide-react";
+import bannerLottie from "../../assets/lottie/STUDENT.json";
 
 // Animation helpers
 const fadeUp = {
@@ -49,7 +55,8 @@ const Home = () => {
               </h1>
 
               <p className="mt-4 md:text-lg text-black/70 max-w-xl">
-                Courses you can actually finish. Watch concise lessons, practice with quizzes, and track your progress in real time.
+                Courses you can actually finish. Watch concise lessons, practice
+                with quizzes, and track your progress in real time.
               </p>
 
               <div className="mt-6 flex flex-wrap gap-3">
@@ -83,7 +90,11 @@ const Home = () => {
               className="relative"
             >
               <div className="relative rounded-3xl border border-yellow-200 bg-gradient-to-b from-yellow-50 to-white p-3 md:p-5 shadow-[0_12px_40px_rgba(0,0,0,0.08)]">
-                <Lottie animationData={bannerLottie} loop className="w-full h-[320px] md:h-[460px]" />
+                <Lottie
+                  animationData={bannerLottie}
+                  loop
+                  className="w-full h-[320px] md:h-[460px]"
+                />
               </div>
             </motion.div>
           </div>
@@ -117,9 +128,12 @@ const Home = () => {
           <div className="absolute inset-0 opacity-20 bg-[radial-gradient(1200px_200px_at_10%_0%,#000,transparent)]" />
           <div className="relative p-6 md:p-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
             <div>
-              <h3 className="text-2xl md:text-3xl font-extrabold">Start teaching on Learnly</h3>
+              <h3 className="text-2xl md:text-3xl font-extrabold">
+                Start teaching on Learnly
+              </h3>
               <p className="mt-2 text-black/70 max-w-2xl">
-                Turn your expertise into a world-class course. Upload videos, add quizzes, and publish with one click.
+                Turn your expertise into a world-class course. Upload videos,
+                add quizzes, and publish with one click.
               </p>
             </div>
             <Link

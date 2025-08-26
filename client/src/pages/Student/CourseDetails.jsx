@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useContext } from "react";
 import { Link, useLocation, useNavigate, useParams } from "react-router";
-import { AuthContext } from "../context/AuthContext";
+import { AuthContext } from "../../context/AuthContext";
 import Swal from "sweetalert2"; // ✅ use Swal
 
 const CourseDetails = () => {

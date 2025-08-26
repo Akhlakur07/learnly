@@ -1,6 +1,6 @@
 import React, { useContext } from "react";
 import { Link, useNavigate } from "react-router";
-import { AuthContext } from "../context/AuthContext";
+import { AuthContext } from "../../context/AuthContext";
 
 const Login = () => {
   const { signInUser } = useContext(AuthContext);
@@ -33,10 +33,7 @@ const Login = () => {
 
         <form onSubmit={handleLogin}>
           <div className="mb-5">
-            <label
-              htmlFor="email"
-              className="block font-semibold mb-1"
-            >
+            <label htmlFor="email" className="block font-semibold mb-1">
               Email Address
             </label>
             <input
@@ -50,10 +47,7 @@ const Login = () => {
           </div>
 
           <div className="mb-6">
-            <label
-              htmlFor="password"
-              className="block font-semibold mb-1"
-            >
+            <label htmlFor="password" className="block font-semibold mb-1">
               Password
             </label>
             <input

@@ -5,7 +5,6 @@ const app = express();
 const port = process.env.PORT || 3000;
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 
-
 // Enable simple CORS for all domains
 app.use(
   cors({
@@ -113,9 +112,7 @@ async function run() {
     app.patch("/users/completeCourse", async (req, res) => {
       const { email, courseId, mark } = req.body;
       if (!email || !courseId)
-        return res
-          .status(400)
-          .send({ message: "email and courseId required" });
+        return res.status(400).send({ message: "email and courseId required" });
 
       try {
         const user = await userCollection.findOne(
@@ -153,7 +150,13 @@ async function run() {
       try {
         const user = await userCollection.findOne(
           { email },
-          { projection: { name: 1, completedCourseMarks: 1, completedCourseMeta: 1 } }
+          {
+            projection: {
+              name: 1,
+              completedCourseMarks: 1,
+              completedCourseMeta: 1,
+            },
+          }
         );
         if (!user) return res.status(404).send({ message: "User not found" });
 
@@ -161,7 +164,8 @@ async function run() {
           { _id: new ObjectId(courseId) },
           { projection: { title: 1 } }
         );
-        if (!course) return res.status(404).send({ message: "Course not found" });
+        if (!course)
+          return res.status(404).send({ message: "Course not found" });
 
         const mark = user.completedCourseMarks?.[courseId] ?? null;
         const meta = user.completedCourseMeta?.[courseId] ?? {};
@@ -181,15 +185,32 @@ async function run() {
 
     // ===== COURSES =====
     app.post("/courses", async (req, res) => {
-      const { title, description, instructorEmail, videos = [], quizzes = [], difficulty, categories } = req.body;
+      const {
+        title,
+        description,
+        instructorEmail,
+        videos = [],
+        quizzes = [],
+        difficulty,
+        categories,
+      } = req.body;
       const allowed = ["Beginner", "Intermediate", "Advanced"];
-      if (!allowed.includes(difficulty)) return res.status(400).send({ message: "Invalid difficulty value" });
+      if (!allowed.includes(difficulty))
+        return res.status(400).send({ message: "Invalid difficulty value" });
 
       const cats = Array.isArray(categories)
         ? [...new Set(categories.map((c) => String(c).trim()).filter(Boolean))]
         : [];
 
-      const courseDoc = { title, description, instructorEmail, difficulty, categories: cats, videos, quizzes };
+      const courseDoc = {
+        title,
+        description,
+        instructorEmail,
+        difficulty,
+        categories: cats,
+        videos,
+        quizzes,
+      };
 
       try {
         const result = await courseCollection.insertOne(courseDoc);
@@ -210,7 +231,9 @@ async function run() {
         const courses = await courseCollection.find(query).toArray();
         res.json(courses);
       } catch (error) {
-        res.status(500).json({ message: "Server error while fetching courses" });
+        res
+          .status(500)
+          .json({ message: "Server error while fetching courses" });
       }
     });
 
@@ -218,6 +241,14 @@ async function run() {
       const id = req.params.id;
       const course = await courseCollection.findOne({ _id: new ObjectId(id) });
       res.send(course);
+    });
+
+    app.delete("/courses/:id", async (req, res) => {
+      const id = req.params.id;
+      const result = await courseCollection.deleteOne({
+        _id: new ObjectId(id),
+      });
+      res.send(result);
     });
 
     console.log("MongoDB initialized.");

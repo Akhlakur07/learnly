@@ -6,12 +6,10 @@ const AllCourses = () => {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // search + filters
   const [search, setSearch] = useState("");
-  const [difficulty, setDifficulty] = useState("All"); // All | Beginner | Intermediate | Advanced
-  const [category, setCategory] = useState("All"); // All or a single category
+  const [difficulty, setDifficulty] = useState("All"); 
+  const [category, setCategory] = useState("All"); 
 
-  // load everything once
   useEffect(() => {
     Promise.all([
       fetch("https://server-blush-two-79.vercel.app/courses").then((res) =>
@@ -28,14 +26,12 @@ const AllCourses = () => {
       .finally(() => setLoading(false));
   }, []);
 
-  // build instructor map for quick lookup
   const instructorByEmail = useMemo(() => {
     const map = new Map();
     users.forEach((u) => map.set(u.email, u));
     return map;
   }, [users]);
 
-  // all unique categories (for the dropdown)
   const allCategories = useMemo(() => {
     const set = new Set();
     courses.forEach((c) => {
@@ -46,7 +42,6 @@ const AllCourses = () => {
     return ["All", ...Array.from(set)];
   }, [courses]);
 
-  // TEXT SEARCH across title, instructor name, category list
   const matchesSearch = (course, instructorName) => {
     if (!search.trim()) return true;
     const q = search.toLowerCase();
@@ -72,7 +67,6 @@ const AllCourses = () => {
     );
   };
 
-  // final filtered list
   const filtered = courses.filter((c) => {
     const instructor = instructorByEmail.get(c.instructorEmail);
     const instructorName = instructor?.name || "Unknown instructor";
@@ -108,14 +102,12 @@ const AllCourses = () => {
 
   return (
     <div className="max-w-7xl mx-auto px-4 pt-24 pb-16">
-      {/* Header + Controls */}
       <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
         <h1 className="text-2xl md:text-3xl font-extrabold text-black">
           All Courses
         </h1>
 
         <div className="flex flex-col gap-2 md:flex-row md:items-center">
-          {/* Search */}
           <input
             type="text"
             value={search}
@@ -124,7 +116,6 @@ const AllCourses = () => {
             className="w-full md:w-72 rounded-lg border border-yellow-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-400"
           />
 
-          {/* Difficulty */}
           <select
             value={difficulty}
             onChange={(e) => setDifficulty(e.target.value)}
@@ -136,7 +127,6 @@ const AllCourses = () => {
             <option>Advanced</option>
           </select>
 
-          {/* Category */}
           <select
             value={category}
             onChange={(e) => setCategory(e.target.value)}
@@ -149,7 +139,6 @@ const AllCourses = () => {
             ))}
           </select>
 
-          {/* Clear (outline style, not black) */}
           <button
             onClick={clearFilters}
             className="rounded-lg border border-yellow-300 bg-white px-3 py-2 text-sm font-semibold text-black hover:bg-yellow-50 transition"
@@ -159,7 +148,6 @@ const AllCourses = () => {
         </div>
       </div>
 
-      {/* List header */}
       <div className="mt-6 rounded-xl border border-yellow-200 overflow-hidden">
         <div className="grid grid-cols-12 bg-yellow-50 px-4 py-3 text-xs font-bold uppercase tracking-wide text-black">
           <div className="col-span-6">Course</div>
@@ -167,7 +155,6 @@ const AllCourses = () => {
           <div className="col-span-2 text-right">Action</div>
         </div>
 
-        {/* Rows */}
         {filtered.length === 0 ? (
           <div className="px-4 py-4 text-black/70">No courses found.</div>
         ) : (
@@ -186,7 +173,6 @@ const AllCourses = () => {
                     <span className="font-semibold text-black">
                       {course.title}
                     </span>
-                    {/* Optional tiny badges under title */}
                     <div className="mt-1 text-xs text-black/70 flex gap-2 flex-wrap">
                       {course.difficulty && (
                         <span className="rounded bg-yellow-50 border border-yellow-200 px-2 py-0.5">

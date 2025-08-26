@@ -1,16 +1,17 @@
 import { createBrowserRouter } from "react-router";
 import Root from "../pages/Root";
-import Home from "../pages/Home";
-import Register from "../pages/Resgister";
-import Login from "../pages/Login";
+import Home from "../pages/General/Home";
+import Register from "../pages/Authentication/Resgister";
+import Login from "../pages/Authentication/Login";
 import StudentProfile from "../pages/Profile/StudentProfile";
 import InstructorProfile from "../pages/Profile/InstructorProfile";
 import PrivateRoute from "../context/PrivateRoute";
-import AddCourses from "../pages/AddCourses";
-import AllCourses from "../pages/AllCourses";
-import CourseDetails from "../pages/CourseDetails";
-import ContinueCourse from "../pages/ContinueCourse";
-import CreatedCourses from "../pages/Profile/CreatedCourses";
+import AddCourses from "../pages/Instructor/AddCourses";
+import AllCourses from "../pages/General/AllCourses";
+import CourseDetails from "../pages/Student/CourseDetails";
+import ContinueCourse from "../pages/Student/ContinueCourse";
+import CreatedCourses from "../pages/Instructor/CreatedCourses";
+import InstructorCourseDetails from "../pages/Instructor/InstructorCourseDetails";
 
 const router = createBrowserRouter([
   {
@@ -79,6 +80,14 @@ const router = createBrowserRouter([
         element: (
           <PrivateRoute>
             <CreatedCourses></CreatedCourses>
+          </PrivateRoute>
+        ),
+      },
+      {
+        path: "/instructor/courses/:id",
+        element: (
+          <PrivateRoute>
+            <InstructorCourseDetails></InstructorCourseDetails>
           </PrivateRoute>
         ),
       },

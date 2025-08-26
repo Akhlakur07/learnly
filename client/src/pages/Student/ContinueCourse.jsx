@@ -1,9 +1,8 @@
 import React, { useContext, useEffect, useState } from "react";
 import { useNavigate, useParams, Link } from "react-router";
 import Swal from "sweetalert2";
-import { AuthContext } from "../context/AuthContext";
+import { AuthContext } from "../../context/AuthContext";
 
-// 👇 React-PDF
 import {
   Document,
   Page,
@@ -23,23 +22,18 @@ const ContinueCourse = () => {
   const [me, setMe] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // stored progress (next to do)
-  const [currentLesson, setCurrentLesson] = useState(0); // next lesson to watch
-  const [currentQuiz, setCurrentQuiz] = useState(0); // next quiz to take
-  const [phase, setPhase] = useState("lessons"); // "lessons" | "quizzes" | "done"
+  const [currentLesson, setCurrentLesson] = useState(0);
+  const [currentQuiz, setCurrentQuiz] = useState(0);
+  const [phase, setPhase] = useState("lessons");
 
-  // UI selection in the right panel
-  const [selectedType, setSelectedType] = useState("lesson"); // "lesson" | "quiz"
+  const [selectedType, setSelectedType] = useState("lesson");
   const [selectedIndex, setSelectedIndex] = useState(0);
 
-  // quiz answer (simple)
   const [picked, setPicked] = useState("");
 
-  // scoring
   const [correctCount, setCorrectCount] = useState(0);
   const [finalMark, setFinalMark] = useState(null);
 
-  // load course + user + hydrate progress
   useEffect(() => {
     if (!user?.email) {
       navigate("/login");
@@ -58,7 +52,6 @@ const ContinueCourse = () => {
         setCourse(courseData || null);
         setMe(userData || null);
 
-        // must be enrolled
         const enrolled = Array.isArray(userData?.enrolledCourses)
           ? userData.enrolledCourses.includes(courseId)
           : false;
@@ -73,7 +66,6 @@ const ContinueCourse = () => {
           return;
         }
 
-        // progress + counts
         const p = userData?.progress?.[courseId] || {};
         const lessonsN = Array.isArray(courseData?.videos)
           ? courseData.videos.length
@@ -118,7 +110,6 @@ const ContinueCourse = () => {
         setCurrentQuiz(quizIndex);
         setCorrectCount(savedCorrect);
 
-        // preshow
         if (nextPhase === "done") {
           if (typeof savedMark === "number") setFinalMark(savedMark);
           if (quizzesN > 0) {
@@ -139,13 +130,11 @@ const ContinueCourse = () => {
       .finally(() => setLoading(false));
   }, [user?.email, courseId, navigate]);
 
-  // single declaration (do NOT redeclare later)
   const lessons = Array.isArray(course?.videos) ? course.videos : [];
   const quizzes = Array.isArray(course?.quizzes) ? course.quizzes : [];
   const lessonsCount = lessons.length;
   const quizzesCount = quizzes.length;
 
-  // helpers
   const saveProgress = async (next) => {
     await fetch("https://server-blush-two-79.vercel.app/users/progress", {
       method: "PATCH",
@@ -161,21 +150,18 @@ const ContinueCourse = () => {
   };
 
   const completeCourse = async () => {
-    // compute mark
     const mark =
       quizzesCount > 0 ? Math.round((correctCount / quizzesCount) * 100) : 100;
 
     setPhase("done");
     setFinalMark(mark);
 
-    // store both: keep completedCourses array, and map of marks
     await fetch("https://server-blush-two-79.vercel.app/users/completeCourse", {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email: user.email, courseId, mark }),
     });
 
-    // also store progress as done
     await saveProgress({
       phase: "done",
       currentLesson,
