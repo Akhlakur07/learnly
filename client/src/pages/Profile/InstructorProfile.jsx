@@ -1,5 +1,6 @@
 // src/pages/Profile/InstructorProfile.jsx
 import React, { useContext, useEffect, useState } from "react";
+import { Link } from "react-router";
 import { AuthContext } from "../../context/AuthContext";
 
 const InstructorProfile = () => {
@@ -30,7 +31,7 @@ const InstructorProfile = () => {
         `https://server-blush-two-79.vercel.app/courses?instructorEmail=${user.email}`
       )
         .then((res) => res.json())
-        .then((data) => setCourses(data));
+        .then((data) => setCourses(Array.isArray(data) ? data : []));
     }
   }, [user]);
 
@@ -49,31 +50,32 @@ const InstructorProfile = () => {
 
   if (!instructorData) {
     return (
-      <div className="text-center mt-10 text-blue-600 font-semibold">
+      <div className="text-center mt-10 text-black font-semibold">
         Loading profile...
       </div>
     );
   }
 
   return (
-    <div className="max-w-5xl mx-auto p-6 mt-10 bg-white rounded-xl shadow-lg border border-blue-100">
+    <div className="max-w-5xl mx-auto p-6 mt-30 bg-white rounded-2xl shadow-md border border-yellow-200">
       <div className="flex flex-col md:flex-row items-center md:items-start gap-6">
         <img
           src={instructorData.photo || "https://via.placeholder.com/150"}
           alt="Instructor"
-          className="w-32 h-32 rounded-full object-cover border-4 border-blue-200"
+          className="w-32 h-32 rounded-full object-cover border-4 border-yellow-200"
         />
+
         <div className="text-center md:text-left w-full">
           {editing ? (
             <div className="space-y-3">
               <input
-                className="w-full border border-blue-300 rounded px-3 py-2"
+                className="w-full border border-yellow-300 rounded px-3 py-2"
                 value={newName}
                 onChange={(e) => setNewName(e.target.value)}
                 placeholder="Your name"
               />
               <textarea
-                className="w-full border border-blue-300 rounded px-3 py-2"
+                className="w-full border border-yellow-300 rounded px-3 py-2"
                 rows={3}
                 value={newBio}
                 onChange={(e) => setNewBio(e.target.value)}
@@ -100,14 +102,16 @@ const InstructorProfile = () => {
             </div>
           ) : (
             <>
-              <h2 className="text-3xl font-bold text-black">
+              <h2 className="text-3xl font-extrabold text-black">
                 {instructorData.name}
               </h2>
-              <p className="text-gray-600 mt-1">
-                <span className="font-medium">Email:</span> {instructorData.email}
+              <p className="text-black/70 mt-1">
+                <span className="font-medium">Email:</span>{" "}
+                {instructorData.email}
               </p>
-              <p className="text-gray-600">
-                <span className="font-medium">Role:</span> {instructorData.role}
+              <p className="text-black/70">
+                <span className="font-medium">Role:</span>{" "}
+                {instructorData.role}
               </p>
               <button
                 onClick={() => setEditing(true)}
@@ -121,34 +125,33 @@ const InstructorProfile = () => {
       </div>
 
       {!editing && (
-        <div className="mt-8">
-          <h3 className="text-xl font-semibold text-black mb-2">Bio</h3>
-          <p className="text-gray-700 leading-relaxed bg-blue-50 p-4 rounded">
-            {instructorData.bio || "No bio provided."}
-          </p>
-        </div>
-      )}
-
-      <div className="mt-10">
-        <h3 className="text-xl font-semibold text-black mb-4">Your Courses</h3>
-        {courses.length === 0 ? (
-          <p className="text-gray-600 italic">
-            You haven't added any courses yet.
-          </p>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {courses.map((course) => (
-              <div
-                key={course._id}
-                className="p-4 bg-blue-50 border border-blue-100 rounded-lg shadow-sm"
-              >
-                <h4 className="text-lg font-bold text-black">{course.title}</h4>
-                <p className="text-gray-700 mt-2">{course.description}</p>
-              </div>
-            ))}
+        <>
+          <div className="mt-8">
+            <h3 className="text-xl font-semibold text-black mb-2">Bio</h3>
+            <p className="text-black/80 leading-relaxed bg-yellow-50 p-4 rounded">
+              {instructorData.bio || "No bio provided."}
+            </p>
           </div>
-        )}
-      </div>
+
+          {/* Simple stats + link to /my-courses */}
+          <div className="mt-8 p-5 rounded-2xl border border-yellow-200 bg-white shadow">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-black/70">Total Courses</p>
+                <p className="text-3xl font-extrabold text-black">
+                  {courses.length}
+                </p>
+              </div>
+              <Link
+                to="/my-courses"
+                className="px-4 py-2 rounded-lg bg-yellow-400 text-black font-semibold hover:bg-yellow-300"
+              >
+                View Your Courses
+              </Link>
+            </div>
+          </div>
+        </>
+      )}
     </div>
   );
 };
