@@ -34,7 +34,6 @@ const ContinueCourse = () => {
   const [correctCount, setCorrectCount] = useState(0);
   const [finalMark, setFinalMark] = useState(null);
 
-  // review state
   const [rating, setRating] = useState(0);
   const [feedback, setFeedback] = useState("");
 
@@ -56,7 +55,6 @@ const ContinueCourse = () => {
         setCourse(courseData || null);
         setMe(userData || null);
 
-        // Prefill review if exists
         const myOldReview = Array.isArray(courseData?.reviews)
           ? courseData.reviews.find((r) => r.userEmail === userData?.email)
           : null;
@@ -162,9 +160,9 @@ const ContinueCourse = () => {
     return map[key] ?? -1;
   };
 
-  const completeCourse = async () => {
+  const completeCourse = async (finalCorrect = correctCount) => {
     const mark =
-      quizzesCount > 0 ? Math.round((correctCount / quizzesCount) * 100) : 100;
+      quizzesCount > 0 ? Math.round((finalCorrect / quizzesCount) * 100) : 100;
 
     setPhase("done");
     setFinalMark(mark);
@@ -179,7 +177,7 @@ const ContinueCourse = () => {
       phase: "done",
       currentLesson,
       currentQuiz,
-      correctCount,
+      correctCount: finalCorrect,
     });
 
     Swal.fire({
@@ -345,7 +343,7 @@ const ContinueCourse = () => {
         currentQuiz,
         correctCount: newCorrectCount,
       });
-      await completeCourse();
+      await completeCourse(newCorrectCount);
     }
   };
 
@@ -360,36 +358,29 @@ const ContinueCourse = () => {
   }
 
   // ===== Certificate bits =====
-  const certId = makeSimpleCertId(user?.email, courseId);
+  const certId = makeCertId(user?.email, courseId);
   const completionDate = new Date().toLocaleDateString();
   const score =
     typeof finalMark === "number"
       ? finalMark
       : me?.completedCourseMarks?.[courseId] ?? null;
 
-  const certificateDoc = (
-    <CertificateDoc
-      studentName={me?.name || "Student"}
-      courseTitle={course?.title || "Course"}
-      dateStr={completionDate}
-      score={typeof score === "number" ? `${score}%` : "—"}
-      certId={certId}
-    />
-  );
-
   // ===== Review helpers =====
   const submitReview = () => {
     if (phase !== "done") return;
-    fetch(`https://server-blush-two-79.vercel.app/courses/${courseId}/reviews`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        email: user.email,
-        name: me?.name,
-        rating,
-        comment: feedback,
-      }),
-    })
+    fetch(
+      `https://server-blush-two-79.vercel.app/courses/${courseId}/reviews`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: user.email,
+          name: me?.name,
+          rating,
+          comment: feedback,
+        }),
+      }
+    )
       .then((res) => res.json())
       .then(() => {
         const nextReview = {
@@ -583,17 +574,34 @@ const ContinueCourse = () => {
 
                 {/* Preview the PDF in-page */}
                 <div className="rounded-xl border border-yellow-200 overflow-hidden">
-                  <PDFViewer style={{ width: "100%", height: 420 }}>
-                    {certificateDoc}
+                  <PDFViewer
+                    key={`${certId}-${score}`} // force fresh render when data changes
+                    style={{ width: "100%", height: 420 }}
+                  >
+                    <CertificateDoc
+                      studentName={me?.name || "Student"}
+                      courseTitle={course?.title || "Course"}
+                      dateStr={completionDate}
+                      score={typeof score === "number" ? `${score}%` : "—"}
+                      certId={certId}
+                    />
                   </PDFViewer>
                 </div>
 
                 {/* Download button */}
                 <PDFDownloadLink
-                  document={certificateDoc}
-                  fileName={`Learnly-Certificate-${
-                    course?.title?.replace(/\s+/g, "_") || "Course"
-                  }.pdf`}
+                  document={
+                    <CertificateDoc
+                      studentName={me?.name || "Student"}
+                      courseTitle={course?.title || "Course"}
+                      dateStr={completionDate}
+                      score={typeof score === "number" ? `${score}%` : "—"}
+                      certId={certId}
+                    />
+                  }
+                  fileName={`Learnly-Certificate-${(
+                    course?.title || "Course"
+                  ).replace(/\s+/g, "_")}.pdf`}
                   className="inline-block rounded-lg bg-black px-4 py-2 text-white text-sm font-semibold hover:opacity-90"
                 >
                   {({ loading: pdfLoading }) =>
@@ -616,7 +624,7 @@ const ContinueCourse = () => {
                       )
                     </p>
                     <StarPicker value={avg} onChange={() => {}} readOnly />
-                </div>
+                  </div>
 
                   <div className="pt-2 border-t border-yellow-100">
                     <h4 className="text-lg font-bold text-black mb-2">
@@ -813,7 +821,9 @@ const StarPicker = ({ value, onChange, readOnly = false }) => {
           key={s}
           type="button"
           onClick={() => !readOnly && onChange(s)}
-          className={`text-2xl ${s <= value ? "text-yellow-400" : "text-black/30"}`}
+          className={`text-2xl ${
+            s <= value ? "text-yellow-400" : "text-black/30"
+          }`}
           disabled={readOnly}
           title={`${s} star${s > 1 ? "s" : ""}`}
         >
@@ -824,10 +834,9 @@ const StarPicker = ({ value, onChange, readOnly = false }) => {
   );
 };
 
-/* ---------------- Certificate (React-PDF) ---------------- */
+/* ---------------- Certificate ---------------- */
 
-// simple, semi-stable cert id for demo
-function makeSimpleCertId(email = "", courseId = "") {
+function makeCertId(email = "", courseId = "") {
   const namePart = (email.split("@")[0] || "USER").slice(0, 4).toUpperCase();
   const coursePart = String(courseId).slice(-4).toUpperCase();
   return `LEARNLY-${namePart}-${coursePart}`;

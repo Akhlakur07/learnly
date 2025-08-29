@@ -1,7 +1,7 @@
-import React, { useEffect, useState, useContext } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { Link, useLocation, useNavigate, useParams } from "react-router";
 import { AuthContext } from "../../context/AuthContext";
-import Swal from "sweetalert2"; // ✅ use Swal
+import Swal from "sweetalert2";
 
 const CourseDetails = () => {
   const { user } = useContext(AuthContext);
@@ -13,32 +13,27 @@ const CourseDetails = () => {
   const passedInstructor = location.state?.instructorName || null;
 
   const [course, setCourse] = useState(passed);
-  const [instructorName, setInstructorName] = useState(passedInstructor);
+  const [instructorName, setInstructorName] = useState(passedInstructor || "");
   const [loading, setLoading] = useState(!passed);
 
   useEffect(() => {
     if (passed) return;
-    fetch("https://server-blush-two-79.vercel.app/courses")
-      .then((res) => res.json())
-      .then((list) => {
-        const found = (list || []).find((c) => (c._id?.$oid || c._id) === id);
-        setCourse(found || null);
 
-        if (found?.instructorEmail) {
-          fetch("https://server-blush-two-79.vercel.app/users")
+    fetch(`https://server-blush-two-79.vercel.app/courses/${id}`)
+      .then((r) => r.json())
+      .then((c) => {
+        setCourse(c || null);
+        if (c?.instructorEmail) {
+          return fetch(
+            `https://server-blush-two-79.vercel.app/users/email/${c.instructorEmail}`
+          )
             .then((r) => r.json())
-            .then((users) => {
-              const instr = (users || []).find(
-                (u) => u.email === found.instructorEmail
-              );
-              setInstructorName(instr?.name || "Unknown instructor");
-            })
-            .finally(() => setLoading(false));
+            .then((u) => setInstructorName(u?.name || "Unknown instructor"));
         } else {
-          setLoading(false);
+          setInstructorName("Unknown instructor");
         }
       })
-      .catch(() => setLoading(false));
+      .finally(() => setLoading(false));
   }, [id, passed]);
 
   const handleEnroll = async () => {
@@ -47,24 +42,21 @@ const CourseDetails = () => {
       return;
     }
 
-    // get current user's doc
     const res = await fetch(
       `https://server-blush-two-79.vercel.app/users/email/${user.email}`
     );
     const me = await res.json();
 
-    // instructors can't enroll
-    if (me.role === "instructor") {
+    if (me.role !== "student") {
       Swal.fire({
         icon: "info",
         title: "Not allowed",
-        text: "Instructors cannot enroll in courses.",
+        text: "Only Students can enroll in courses.",
         confirmButtonColor: "#000000",
       });
       return;
     }
 
-    // already enrolled?
     const already =
       Array.isArray(me.enrolledCourses) && me.enrolledCourses.includes(id);
 
@@ -78,7 +70,6 @@ const CourseDetails = () => {
       return;
     }
 
-    // confirm enrollment
     const result = await Swal.fire({
       icon: "question",
       title: "Enroll in this course?",
@@ -102,7 +93,6 @@ const CourseDetails = () => {
       );
       const enrollData = await enrollRes.json();
 
-      // backend uses $addToSet, so if nothing changed, user was already enrolled
       if (enrollData?.modifiedCount === 0) {
         Swal.fire({
           icon: "info",

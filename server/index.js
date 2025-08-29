@@ -1,9 +1,18 @@
 require("dotenv").config();
+const admin = require("firebase-admin");
 const express = require("express");
 const cors = require("cors");
 const app = express();
 const port = process.env.PORT || 3000;
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
+
+if (!admin.apps.length) {
+  admin.initializeApp({
+    credential: admin.credential.cert(
+      JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT)
+    ),
+  });
+}
 
 // Enable simple CORS for all domains
 app.use(
@@ -268,7 +277,6 @@ async function run() {
       res.send({ ok: true, modifiedCount: result.modifiedCount });
     });
 
-
     app.post("/courses/:id/reviews", async (req, res) => {
       const courseId = req.params.id;
       const { email, name, rating, comment } = req.body;
@@ -344,6 +352,26 @@ async function run() {
         res.send(course?.reviews || []);
       } catch (e) {
         res.status(500).send({ message: "Failed to fetch reviews" });
+      }
+    });
+
+    app.delete("/users/:id", async (req, res) => {
+      const id = req.params.id;
+      const result = await userCollection.deleteOne({ _id: new ObjectId(id) });
+      res.send(result);
+    });
+
+    app.post("/admin/deleteFirebaseUser", async (req, res) => {
+      const { email } = req.body;
+      try {
+        const userRec = await admin.auth().getUserByEmail(email);
+        await admin.auth().deleteUser(userRec.uid);
+        res.send({ ok: true });
+      } catch (e) {
+        res.send({
+          ok: false,
+          message: "Firebase user not found or already deleted",
+        });
       }
     });
 

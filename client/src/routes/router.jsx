@@ -13,6 +13,7 @@ import ContinueCourse from "../pages/Student/ContinueCourse";
 import CreatedCourses from "../pages/Instructor/CreatedCourses";
 import InstructorCourseDetails from "../pages/Instructor/InstructorCourseDetails";
 import Reviews from "../pages/Instructor/Reviews";
+import ManageUsers from "../pages/Admin/ManageUsers";
 
 const router = createBrowserRouter([
   {
@@ -100,6 +101,14 @@ const router = createBrowserRouter([
           </PrivateRoute>
         ),
       },
+      {
+        path: "/manage-users",
+        element: (
+          <PrivateRoute>
+            <ManageUsers></ManageUsers>
+          </PrivateRoute>
+        ),
+      }
     ],
   },
 ]);
