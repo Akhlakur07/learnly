@@ -14,7 +14,6 @@ if (!admin.apps.length) {
   });
 }
 
-// Enable simple CORS for all domains
 app.use(
   cors({
     origin: "*",
@@ -26,7 +25,6 @@ app.use(express.json());
 
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.oijxnxr.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
 
-// MongoClient setup
 const client = new MongoClient(uri, {
   serverApi: {
     version: ServerApiVersion.v1,
@@ -41,7 +39,6 @@ async function run() {
     const courseCollection = client.db("learnlyDB").collection("courses");
     const faqCollection = client.db("learnlyDB").collection("faqs");
 
-    // ===== USERS =====
     app.post("/users", async (req, res) => {
       const user = req.body;
       const existingUser = await userCollection.findOne({ email: user.email });
@@ -193,7 +190,6 @@ async function run() {
       }
     });
 
-    // ===== COURSES =====
     app.post("/courses", async (req, res) => {
       const {
         title,
@@ -283,7 +279,6 @@ async function run() {
       const { email, name, rating, comment } = req.body;
 
       try {
-        // simple guard: must have completed the course
         const user = await userCollection.findOne(
           { email },
           { projection: { completedCourses: 1, name: 1 } }
@@ -304,7 +299,6 @@ async function run() {
           createdAt: new Date().toISOString(),
         };
 
-        // if a review by this user exists, update it; otherwise push new
         const existing = await courseCollection.findOne(
           { _id: new ObjectId(courseId), "reviews.userEmail": email },
           { projection: { _id: 1 } }
@@ -343,7 +337,6 @@ async function run() {
       }
     });
 
-    // Get only the reviews for a course (optional helper)
     app.get("/courses/:id/reviews", async (req, res) => {
       try {
         const course = await courseCollection.findOne(
@@ -376,9 +369,6 @@ async function run() {
       }
     });
 
-    // ===== FAQS =====
-
-    // Create FAQ (admin only)
     app.post("/faqs", async (req, res) => {
       try {
         const { question, answer, actorEmail } = req.body;
@@ -412,7 +402,6 @@ async function run() {
       }
     });
 
-    // Get all FAQs (public)
     app.get("/faqs", async (_req, res) => {
       try {
         const faqs = await faqCollection
@@ -425,7 +414,6 @@ async function run() {
       }
     });
 
-    // Update FAQ (admin only)
     app.patch("/faqs/:id", async (req, res) => {
       try {
         const { id } = req.params;
@@ -453,7 +441,6 @@ async function run() {
       }
     });
 
-    // Delete FAQ (admin only)
     app.delete("/faqs/:id", async (req, res) => {
       try {
         const { id } = req.params;
@@ -476,17 +463,14 @@ async function run() {
 
     console.log("MongoDB initialized.");
   } finally {
-    // Do not close client because server should keep running
   }
 }
 run().catch(console.dir);
 
-// Test route
 app.get("/", (req, res) => {
   res.send("Learnly is Learning!!!");
 });
 
-// Start server
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
 });

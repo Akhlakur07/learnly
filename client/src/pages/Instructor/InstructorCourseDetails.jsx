@@ -1,9 +1,8 @@
-// src/pages/InstructorCourseDetails.jsx
 import React, { useEffect, useState } from "react";
 import { useParams, Link } from "react-router";
 
 const InstructorCourseDetails = () => {
-  const { id } = useParams(); // get course id from URL
+  const { id } = useParams();
   const [course, setCourse] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -57,7 +56,6 @@ const InstructorCourseDetails = () => {
           </p>
         </div>
 
-        {/* Videos Section */}
         <div className="mb-8">
           <h2 className="text-xl font-bold mb-3 text-black">Lessons</h2>
           {Array.isArray(course.videos) && course.videos.length > 0 ? (
@@ -84,7 +82,6 @@ const InstructorCourseDetails = () => {
           )}
         </div>
 
-        {/* Quizzes Section */}
         <div>
           <h2 className="text-xl font-bold mb-3 text-black">Quizzes</h2>
           {Array.isArray(course.quizzes) && course.quizzes.length > 0 ? (

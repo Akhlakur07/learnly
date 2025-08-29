@@ -1,4 +1,3 @@
-// src/pages/Faq.jsx
 import React, { useEffect, useState } from "react";
 
 const API = "https://server-blush-two-79.vercel.app";

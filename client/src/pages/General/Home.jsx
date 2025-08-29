@@ -14,7 +14,7 @@ import bannerLottie from "../../assets/lottie/STUDENT.json";
 
 const API = "https://server-blush-two-79.vercel.app";
 
-// Animation helpers
+
 const fadeUp = {
   hidden: { opacity: 0, y: 24 },
   show: (i = 0) => ({
@@ -25,14 +25,12 @@ const fadeUp = {
 };
 
 const Home = () => {
-  // FAQ preview state
   const [faqs, setFaqs] = useState([]);
   const [loadingFaqs, setLoadingFaqs] = useState(true);
 
   useEffect(() => {
     const load = async () => {
       try {
-        // works whether backend supports ?limit=3 or not
         const res = await fetch(`${API}/faqs?limit=3`);
         const list = await res.json();
         const safe = Array.isArray(list) ? list : [];
@@ -48,7 +46,6 @@ const Home = () => {
 
   return (
     <div className="min-h-screen bg-white text-black px-[15%] pt-16">
-      {/* Decorative background */}
       <div className="pointer-events-none fixed inset-0 -z-10">
         <div className="absolute inset-0 bg-[radial-gradient(60%_50%_at_20%_10%,rgba(250,204,21,0.25),transparent_60%)]" />
         <div className="absolute -top-24 -right-24 h-72 w-72 rounded-full bg-yellow-300/40 blur-3xl" />
@@ -56,11 +53,9 @@ const Home = () => {
         <div className="absolute inset-0 [mask-image:radial-gradient(ellipse_at_center,black,transparent_70%)] opacity-[0.08] bg-[linear-gradient(to_right,black_1px,transparent_1px),linear-gradient(to_bottom,black_1px,transparent_1px)] bg-[size:28px_28px]" />
       </div>
 
-      {/* HERO */}
       <section className="relative">
         <div className="container mx-auto px-4 pt-10 md:pt-16">
           <div className="grid md:grid-cols-2 gap-10 items-center">
-            {/* Copy */}
             <motion.div initial="hidden" animate="show" variants={fadeUp}>
               <div className="inline-flex items-center gap-2 rounded-full border border-yellow-300 bg-yellow-100 px-3 py-1 text-xs font-semibold">
                 <Sparkles className="h-4 w-4" />
@@ -94,7 +89,6 @@ const Home = () => {
                 </Link>
               </div>
 
-              {/* Quick trust / stats */}
               <div className="mt-8 grid grid-cols-3 max-w-md gap-4">
                 <Stat kpi="120+" label="Videos" />
                 <Stat kpi="40+" label="Quizzes" />
@@ -102,7 +96,6 @@ const Home = () => {
               </div>
             </motion.div>
 
-            {/* Lottie visual */}
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
@@ -121,7 +114,6 @@ const Home = () => {
         </div>
       </section>
 
-      {/* FEATURE STRIP */}
       <section className="container mx-auto px-4 mt-14">
         <div className="grid md:grid-cols-3 gap-6">
           <Feature
@@ -142,7 +134,6 @@ const Home = () => {
         </div>
       </section>
 
-      {/* FAQ PREVIEW */}
       <section className="container mx-auto px-4 mt-14">
         <div className="flex items-end justify-between mb-4">
           <h3 className="text-2xl md:text-3xl font-extrabold">FAQs</h3>
@@ -197,7 +188,6 @@ const Home = () => {
         </div>
       </section>
 
-      {/* CTA BAND */}
       <section className="container mx-auto px-4 my-16">
         <div className="relative overflow-hidden rounded-3xl border border-yellow-300 bg-yellow-50">
           <div className="absolute inset-0 opacity-20 bg-[radial-gradient(1200px_200px_at_10%_0%,#000,transparent)]" />
@@ -221,7 +211,6 @@ const Home = () => {
         </div>
       </section>
 
-      {/* FOOTER MINI */}
       <footer className="pb-10 px-4">
         <div className="container mx-auto text-center text-sm text-black/60">
           © {new Date().getFullYear()} Learnly. All rights reserved.

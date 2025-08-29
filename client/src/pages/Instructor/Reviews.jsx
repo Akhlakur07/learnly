@@ -1,9 +1,8 @@
-// src/pages/Reviews.jsx
 import React, { useEffect, useState } from "react";
 import { useParams, Link } from "react-router";
 
 const Reviews = () => {
-  const { id } = useParams(); // course id
+  const { id } = useParams();
   const [course, setCourse] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -99,7 +98,7 @@ const Reviews = () => {
 };
 
 const Stars = ({ value = 0, readOnly = false, onChange = () => {} }) => {
-  const rounded = Math.round(value); // simple whole-star display
+  const rounded = Math.round(value);
   const stars = [1, 2, 3, 4, 5];
   return (
     <div className="flex items-center gap-1">

@@ -1,4 +1,3 @@
-// src/pages/CreatedCourses.jsx
 import React, { useContext, useEffect, useState } from "react";
 import { Link } from "react-router";
 import { AuthContext } from "../../context/AuthContext";
@@ -129,7 +128,6 @@ const CreatedCourses = () => {
                   </p>
                 </div>
 
-                {/* Reviews */}
                 <div className="mt-4 pt-3 border-t border-yellow-200">
                   <p className="text-sm font-semibold mb-2">Reviews</p>
                   {reviews.length === 0 ? (

@@ -315,7 +315,7 @@ const ContinueCourse = () => {
       return;
     }
 
-    const chosenIdx = Number(picked.split("-")[1]); // "opt-2" => 2
+    const chosenIdx = Number(picked.split("-")[1]);
     const correctIdx = correctIndexOf(quizzes[currentQuiz]);
     const isCorrect = chosenIdx === correctIdx;
 
@@ -357,7 +357,6 @@ const ContinueCourse = () => {
     );
   }
 
-  // ===== Certificate bits =====
   const certId = makeCertId(user?.email, courseId);
   const completionDate = new Date().toLocaleDateString();
   const score =
@@ -365,7 +364,6 @@ const ContinueCourse = () => {
       ? finalMark
       : me?.completedCourseMarks?.[courseId] ?? null;
 
-  // ===== Review helpers =====
   const submitReview = () => {
     if (phase !== "done") return;
     fetch(
@@ -415,14 +413,12 @@ const ContinueCourse = () => {
   return (
     <div className="max-w-7xl mx-auto px-4 pt-24 pb-16">
       <div className="grid grid-cols-12 gap-6">
-        {/* Sidebar */}
         <aside className="col-span-12 lg:col-span-4">
           <div className="rounded-2xl border border-yellow-200 bg-white p-4">
             <h2 className="text-xl font-extrabold text-black">
               {course.title}
             </h2>
 
-            {/* Lessons list */}
             {lessonsCount > 0 && (
               <>
                 <h3 className="mt-4 text-sm font-bold text-black/80">
@@ -468,7 +464,6 @@ const ContinueCourse = () => {
               </>
             )}
 
-            {/* Quizzes list */}
             {quizzesCount > 0 && (
               <>
                 <h3 className="mt-6 text-sm font-bold text-black/80">
@@ -521,10 +516,8 @@ const ContinueCourse = () => {
           </div>
         </aside>
 
-        {/* Content panel */}
         <main className="col-span-12 lg:col-span-8">
           <div className="rounded-2xl border border-yellow-200 bg-white p-6">
-            {/* Header: progress summary */}
             <p className="text-black/70 text-sm mb-4">
               {phase === "lessons" &&
                 `${currentLesson} of ${lessonsCount} lessons completed`}
@@ -536,7 +529,6 @@ const ContinueCourse = () => {
                   : "Course completed")}
             </p>
 
-            {/* Lessons view */}
             {selectedType === "lesson" && lessonsCount > 0 && (
               <LessonView
                 lesson={lessons[selectedIndex]}
@@ -549,7 +541,6 @@ const ContinueCourse = () => {
               />
             )}
 
-            {/* Quizzes view */}
             {selectedType === "quiz" && quizzesCount > 0 && (
               <QuizView
                 quiz={quizzes[selectedIndex]}
@@ -564,18 +555,15 @@ const ContinueCourse = () => {
               />
             )}
 
-            {/* Done view + Certificate + Reviews */}
             {phase === "done" && (
               <div className="mt-8 space-y-4">
                 <div className="rounded-xl border border-yellow-200 bg-yellow-50 p-4 text-black">
                   You finished this course
                   {typeof score === "number" ? ` • Score: ${score}%` : ""}. 🎉
                 </div>
-
-                {/* Preview the PDF in-page */}
                 <div className="rounded-xl border border-yellow-200 overflow-hidden">
                   <PDFViewer
-                    key={`${certId}-${score}`} // force fresh render when data changes
+                    key={`${certId}-${score}`}
                     style={{ width: "100%", height: 420 }}
                   >
                     <CertificateDoc
@@ -588,7 +576,6 @@ const ContinueCourse = () => {
                   </PDFViewer>
                 </div>
 
-                {/* Download button */}
                 <PDFDownloadLink
                   document={
                     <CertificateDoc
@@ -609,7 +596,6 @@ const ContinueCourse = () => {
                   }
                 </PDFDownloadLink>
 
-                {/* Reviews */}
                 <div className="rounded-xl border border-yellow-200 bg-white p-4 space-y-4">
                   <div className="flex items-center justify-between">
                     <p className="text-sm text-black/70">
@@ -673,7 +659,6 @@ const ContinueCourse = () => {
   );
 };
 
-/* ------- Small presentational helpers ------- */
 
 const LessonView = ({ lesson, index, isCurrent, embedUrl, onMarkWatched }) => {
   return (

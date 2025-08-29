@@ -6,15 +6,12 @@ const StudentProfile = () => {
   const { user } = useContext(AuthContext);
 
   const [studentData, setStudentData] = useState(null);
-  const [enrolled, setEnrolled] = useState([]); // only NOT completed
-  const [completed, setCompleted] = useState([]); // [{ id, course, score }]
-
-  // edit state
+  const [enrolled, setEnrolled] = useState([]);
+  const [completed, setCompleted] = useState([]);
   const [editing, setEditing] = useState(false);
   const [newName, setNewName] = useState("");
   const [newBio, setNewBio] = useState("");
 
-  // 1) Load current student's doc
   useEffect(() => {
     if (!user?.email) return;
 
@@ -27,7 +24,6 @@ const StudentProfile = () => {
       });
   }, [user?.email]);
 
-  // 2) After we have the student, load all courses once and build both lists
   useEffect(() => {
     if (!studentData) return;
 
@@ -46,14 +42,12 @@ const StudentProfile = () => {
           : [];
         const completedSet = new Set(completedIds);
 
-        // Enrolled = enrolledCourses MINUS completedCourses
         const enrolledItems = enrolledIds
           .filter((id) => !completedSet.has(id))
           .map((id) => byId.get(id))
           .filter(Boolean);
         setEnrolled(enrolledItems);
 
-        // Completed with score
         const marks = studentData.completedCourseMarks || {};
         const completedItems = completedIds
           .map((id) => ({
@@ -89,7 +83,6 @@ const StudentProfile = () => {
 
   return (
     <div className="max-w-3xl mx-auto bg-white shadow-xl border border-yellow-200 rounded-2xl p-6 my-36 mb-22">
-      {/* Header */}
       <div className="flex flex-col md:flex-row items-center md:items-start gap-6">
         <img
           src={studentData.photo || "https://via.placeholder.com/150"}
@@ -153,7 +146,6 @@ const StudentProfile = () => {
         </div>
       </div>
 
-      {/* Bio */}
       {!editing && (
         <div className="mt-6">
           <h3 className="text-xl font-semibold text-black mb-2">Bio</h3>
@@ -163,7 +155,6 @@ const StudentProfile = () => {
         </div>
       )}
 
-      {/* Enrolled (NOT completed) */}
       <div className="mt-6">
         <h3 className="text-xl font-semibold text-black mb-2">
           Enrolled Courses
@@ -210,7 +201,6 @@ const StudentProfile = () => {
         )}
       </div>
 
-      {/* Completed + Score */}
       <div className="mt-8">
         <h3 className="text-xl font-semibold text-black mb-2">
           Completed Courses

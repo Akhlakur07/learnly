@@ -1,4 +1,3 @@
-// ...imports remain the same
 import React, { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import { AuthContext } from "../../context/AuthContext";
@@ -6,16 +5,12 @@ import { AuthContext } from "../../context/AuthContext";
 const AddCourses = () => {
   const { user } = useContext(AuthContext);
   const navigate = useNavigate();
-
-  // role
   const [userDoc, setUserDoc] = useState(null);
   const [loadingRole, setLoadingRole] = useState(true);
-
-  // form
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
-  const [difficulty, setDifficulty] = useState(""); // NEW
-  const [categoriesText, setCategoriesText] = useState(""); // NEW (comma-separated)
+  const [difficulty, setDifficulty] = useState("");
+  const [categoriesText, setCategoriesText] = useState("");
   const [videos, setVideos] = useState([{ title: "", url: "" }]);
   const [quizzes, setQuizzes] = useState([
     { question: "", options: ["", "", "", ""], correctAnswer: "" },
@@ -63,8 +58,6 @@ const AddCourses = () => {
 
   const handleAddCourse = (e) => {
     e.preventDefault();
-
-    // turn "DSA, Algorithms, Interview" into ["DSA","Algorithms","Interview"]
     const categories = categoriesText
       .split(",")
       .map((s) => s.trim())
@@ -74,8 +67,8 @@ const AddCourses = () => {
       title,
       description,
       instructorEmail: user?.email,
-      difficulty, // NEW
-      categories, // NEW
+      difficulty,
+      categories,
       videos: videos.filter((v) => v.url.trim() !== ""),
       quizzes: quizzes.filter((q) => q.question.trim() !== ""),
     };
@@ -118,7 +111,6 @@ const AddCourses = () => {
       </h2>
 
       <form onSubmit={handleAddCourse} className="text-black">
-        {/* Title */}
         <div className="mb-4">
           <label className="block mb-1 font-medium">Course Title</label>
           <input
@@ -144,7 +136,6 @@ const AddCourses = () => {
           />
         </div>
 
-        {/* Difficulty (NEW) */}
         <div className="mb-4">
           <label className="block mb-1 font-medium">Difficulty</label>
           <select
@@ -160,7 +151,6 @@ const AddCourses = () => {
           </select>
         </div>
 
-        {/* Categories (NEW) */}
         <div className="mb-6">
           <label className="block mb-1 font-medium">Categories</label>
           <input
@@ -175,7 +165,6 @@ const AddCourses = () => {
           </p>
         </div>
 
-        {/* Videos */}
         <div className="mb-6">
           <h3 className="text-lg font-semibold mb-2">Lessons</h3>
           {videos.map((video, index) => (
@@ -223,7 +212,6 @@ const AddCourses = () => {
           </button>
         </div>
 
-        {/* Quizzes */}
         <div className="mb-6">
           <h3 className="text-lg font-semibold mb-2">Quiz Questions</h3>
           {quizzes.map((quiz, index) => (

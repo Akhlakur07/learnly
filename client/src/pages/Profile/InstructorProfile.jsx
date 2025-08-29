@@ -1,4 +1,3 @@
-// src/pages/Profile/InstructorProfile.jsx
 import React, { useContext, useEffect, useState } from "react";
 import { Link } from "react-router";
 import { AuthContext } from "../../context/AuthContext";
