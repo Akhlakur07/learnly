@@ -191,7 +191,7 @@ const ManageUsers = () => {
                     onClick={() => openManage(u)}
                     className="px-3 py-1.5 rounded-lg bg-yellow-400 text-black text-xs font-semibold hover:bg-yellow-300"
                   >
-                    Manage
+                    Update
                   </button>
                   <button
                     onClick={() => handleDelete(u)}
@@ -215,7 +215,7 @@ const ManageUsers = () => {
       {editingUser && (
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
           <div className="w-full max-w-md rounded-2xl border border-yellow-200 bg-white p-5">
-            <h3 className="text-xl font-bold text-black mb-3">Manage User</h3>
+            <h3 className="text-xl font-bold text-black mb-3">Update User</h3>
 
             <label className="block text-sm font-semibold text-black mb-1">
               Name

@@ -28,6 +28,7 @@ const Navbar = () => {
       .then((data) => {
         if (data.role === "student") navigate("/studentProfile");
         else if (data.role === "instructor") navigate("/instructorProfile");
+        else if (data.role === "admin") navigate("/adminProfile");
       });
   };
 
@@ -70,6 +71,14 @@ const Navbar = () => {
                   className="text-base md:text-lg font-semibold text-black/80 hover:text-black"
                 >
                   View Courses
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/faqs"
+                  className="text-base md:text-lg font-semibold text-black/80 hover:text-black"
+                >
+                  FAQ
                 </Link>
               </li>
               <li>

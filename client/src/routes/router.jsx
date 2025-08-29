@@ -14,6 +14,10 @@ import CreatedCourses from "../pages/Instructor/CreatedCourses";
 import InstructorCourseDetails from "../pages/Instructor/InstructorCourseDetails";
 import Reviews from "../pages/Instructor/Reviews";
 import ManageUsers from "../pages/Admin/ManageUsers";
+import ManageCourses from "../pages/Admin/ManageCourses";
+import PostFaqs from "../pages/Admin/PostFaqs";
+import AdminProfile from "../pages/Admin/AdminProfile";
+import Faq from "../pages/General/Faq";
 
 const router = createBrowserRouter([
   {
@@ -46,6 +50,14 @@ const router = createBrowserRouter([
         element: (
           <PrivateRoute>
             <InstructorProfile></InstructorProfile>
+          </PrivateRoute>
+        ),
+      },
+      {
+        path: "/adminProfile",
+        element: (
+          <PrivateRoute>
+            <AdminProfile></AdminProfile>
           </PrivateRoute>
         ),
       },
@@ -108,6 +120,26 @@ const router = createBrowserRouter([
             <ManageUsers></ManageUsers>
           </PrivateRoute>
         ),
+      },
+      {
+        path: "/manage-courses",
+        element: (
+          <PrivateRoute>
+            <ManageCourses></ManageCourses>
+          </PrivateRoute>
+        ),
+      },
+      {
+        path: "/post-faq",
+        element: (
+          <PrivateRoute>
+            <PostFaqs></PostFaqs>
+          </PrivateRoute>
+        ),
+      },
+      {
+        path:"/faqs",
+        Component: Faq,
       }
     ],
   },

@@ -39,6 +39,7 @@ async function run() {
   try {
     const userCollection = client.db("learnlyDB").collection("users");
     const courseCollection = client.db("learnlyDB").collection("courses");
+    const faqCollection = client.db("learnlyDB").collection("faqs");
 
     // ===== USERS =====
     app.post("/users", async (req, res) => {
@@ -372,6 +373,104 @@ async function run() {
           ok: false,
           message: "Firebase user not found or already deleted",
         });
+      }
+    });
+
+    // ===== FAQS =====
+
+    // Create FAQ (admin only)
+    app.post("/faqs", async (req, res) => {
+      try {
+        const { question, answer, actorEmail } = req.body;
+        if (!question || !answer || !actorEmail) {
+          return res
+            .status(400)
+            .send({ message: "question, answer, actorEmail required" });
+        }
+
+        const actor = await userCollection.findOne(
+          { email: actorEmail },
+          { projection: { role: 1 } }
+        );
+        if (!actor || actor.role !== "admin") {
+          return res.status(403).send({ message: "Admin only" });
+        }
+
+        const now = new Date().toISOString();
+        const doc = {
+          question: String(question).trim(),
+          answer: String(answer).trim(),
+          createdByEmail: actorEmail,
+          createdAt: now,
+          updatedAt: now,
+        };
+
+        const result = await faqCollection.insertOne(doc);
+        res.send({ ok: true, insertedId: result.insertedId });
+      } catch (e) {
+        res.status(500).send({ message: "Failed to create FAQ" });
+      }
+    });
+
+    // Get all FAQs (public)
+    app.get("/faqs", async (_req, res) => {
+      try {
+        const faqs = await faqCollection
+          .find({}, { projection: { question: 1, answer: 1, createdAt: 1 } })
+          .sort({ createdAt: -1 })
+          .toArray();
+        res.send(faqs);
+      } catch (e) {
+        res.status(500).send({ message: "Failed to fetch FAQs" });
+      }
+    });
+
+    // Update FAQ (admin only)
+    app.patch("/faqs/:id", async (req, res) => {
+      try {
+        const { id } = req.params;
+        const { question, answer, actorEmail } = req.body;
+
+        const actor = await userCollection.findOne(
+          { email: actorEmail },
+          { projection: { role: 1 } }
+        );
+        if (!actor || actor.role !== "admin") {
+          return res.status(403).send({ message: "Admin only" });
+        }
+
+        const update = { updatedAt: new Date().toISOString() };
+        if (question !== undefined) update.question = String(question).trim();
+        if (answer !== undefined) update.answer = String(answer).trim();
+
+        const result = await faqCollection.updateOne(
+          { _id: new ObjectId(id) },
+          { $set: update }
+        );
+        res.send({ ok: true, modifiedCount: result.modifiedCount });
+      } catch (e) {
+        res.status(500).send({ message: "Failed to update FAQ" });
+      }
+    });
+
+    // Delete FAQ (admin only)
+    app.delete("/faqs/:id", async (req, res) => {
+      try {
+        const { id } = req.params;
+        const { actorEmail } = req.body;
+
+        const actor = await userCollection.findOne(
+          { email: actorEmail },
+          { projection: { role: 1 } }
+        );
+        if (!actor || actor.role !== "admin") {
+          return res.status(403).send({ message: "Admin only" });
+        }
+
+        const result = await faqCollection.deleteOne({ _id: new ObjectId(id) });
+        res.send({ ok: true, deletedCount: result.deletedCount });
+      } catch (e) {
+        res.status(500).send({ message: "Failed to delete FAQ" });
       }
     });
 
