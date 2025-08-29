@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Link } from "react-router";
 import Lottie from "lottie-react";
 // eslint-disable-next-line no-unused-vars
@@ -12,6 +12,8 @@ import {
 } from "lucide-react";
 import bannerLottie from "../../assets/lottie/STUDENT.json";
 
+const API = "https://server-blush-two-79.vercel.app";
+
 // Animation helpers
 const fadeUp = {
   hidden: { opacity: 0, y: 24 },
@@ -23,16 +25,34 @@ const fadeUp = {
 };
 
 const Home = () => {
+  // FAQ preview state
+  const [faqs, setFaqs] = useState([]);
+  const [loadingFaqs, setLoadingFaqs] = useState(true);
+
+  useEffect(() => {
+    const load = async () => {
+      try {
+        // works whether backend supports ?limit=3 or not
+        const res = await fetch(`${API}/faqs?limit=3`);
+        const list = await res.json();
+        const safe = Array.isArray(list) ? list : [];
+        setFaqs(safe.slice(0, 3));
+      } catch {
+        setFaqs([]);
+      } finally {
+        setLoadingFaqs(false);
+      }
+    };
+    load();
+  }, []);
+
   return (
     <div className="min-h-screen bg-white text-black px-[15%] pt-16">
       {/* Decorative background */}
       <div className="pointer-events-none fixed inset-0 -z-10">
-        {/* soft radial glow */}
         <div className="absolute inset-0 bg-[radial-gradient(60%_50%_at_20%_10%,rgba(250,204,21,0.25),transparent_60%)]" />
-        {/* blurred blobs */}
         <div className="absolute -top-24 -right-24 h-72 w-72 rounded-full bg-yellow-300/40 blur-3xl" />
         <div className="absolute bottom-0 left-[-5%] h-64 w-64 rounded-full bg-yellow-200/40 blur-2xl" />
-        {/* subtle grid */}
         <div className="absolute inset-0 [mask-image:radial-gradient(ellipse_at_center,black,transparent_70%)] opacity-[0.08] bg-[linear-gradient(to_right,black_1px,transparent_1px),linear-gradient(to_bottom,black_1px,transparent_1px)] bg-[size:28px_28px]" />
       </div>
 
@@ -48,7 +68,7 @@ const Home = () => {
               </div>
 
               <h1 className="mt-4 text-4xl md:text-6xl font-extrabold leading-tight">
-                Learn faster with
+                Bite-size lessons, career-size impact.<br />
                 <span className="mx-2 bg-gradient-to-r from-yellow-500 to-yellow-300 bg-clip-text text-transparent">
                   Learnly
                 </span>
@@ -119,6 +139,61 @@ const Home = () => {
             title="Instructor-led"
             desc="Learn from experienced instructors who ship."
           />
+        </div>
+      </section>
+
+      {/* FAQ PREVIEW */}
+      <section className="container mx-auto px-4 mt-14">
+        <div className="flex items-end justify-between mb-4">
+          <h3 className="text-2xl md:text-3xl font-extrabold">FAQs</h3>
+          <Link
+            to="/faqs"
+            className="text-sm font-semibold text-black underline underline-offset-4 hover:opacity-80"
+          >
+            View all FAQs
+          </Link>
+        </div>
+
+        <div className="grid md:grid-cols-3 gap-4">
+          {loadingFaqs
+            ? Array.from({ length: 3 }).map((_, i) => (
+                <div
+                  key={i}
+                  className="rounded-2xl border border-yellow-200 bg-white p-4"
+                >
+                  <div className="h-5 w-3/4 bg-yellow-100 rounded mb-3" />
+                  <div className="h-4 w-full bg-yellow-50 rounded mb-2" />
+                  <div className="h-4 w-5/6 bg-yellow-50 rounded" />
+                </div>
+              ))
+            : faqs.map((f) => {
+                const id = f._id?.$oid || f._id;
+                return (
+                  <div
+                    key={id}
+                    className="rounded-2xl border border-yellow-200 bg-white p-5 shadow-[0_6px_18px_rgba(0,0,0,0.05)]"
+                  >
+                    <div className="text-sm font-bold">{f.question}</div>
+                    <p className="mt-2 text-sm text-black/70 line-clamp-4">
+                      {f.answer}
+                    </p>
+                  </div>
+                );
+              })}
+          {!loadingFaqs && faqs.length === 0 && (
+            <div className="col-span-3 rounded-2xl border border-yellow-200 bg-white p-6 text-center text-black/70">
+              No FAQs yet.
+            </div>
+          )}
+        </div>
+
+        <div className="mt-6 text-center">
+          <Link
+            to="/faqs"
+            className="inline-flex items-center gap-2 rounded-xl bg-yellow-400 text-black px-5 py-3 font-semibold shadow-sm hover:bg-yellow-300 focus:outline-none focus:ring-4 focus:ring-yellow-300/50 transition"
+          >
+            Go to FAQ Page <ArrowRight className="h-5 w-5" />
+          </Link>
         </div>
       </section>
 
