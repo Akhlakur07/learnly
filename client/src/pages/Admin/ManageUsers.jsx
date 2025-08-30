@@ -80,7 +80,7 @@ const ManageUsers = () => {
     const id = u._id?.$oid || u._id;
     Swal.fire({
       title: "Delete this user?",
-      text: "This will remove the user from MongoDB and Firebase.",
+      text: "This user will be removed.",
       icon: "warning",
       showCancelButton: true,
       confirmButtonText: "Yes, delete",

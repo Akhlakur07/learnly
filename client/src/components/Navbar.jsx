@@ -9,7 +9,6 @@ const Navbar = () => {
   const [user, setUser] = useState(null);
   const navigate = useNavigate();
 
-  // watch auth state
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, (currentUser) =>
       setUser(currentUser)
@@ -17,7 +16,6 @@ const Navbar = () => {
     return () => unsub();
   }, []);
 
-  // dashboard route by role (simple)
   const handleDashboard = () => {
     if (!user?.email) {
       navigate("/login");
@@ -42,9 +40,7 @@ const Navbar = () => {
   return (
     <header className="fixed inset-x-0 top-0 z-50 bg-white/80 backdrop-blur border-b border-yellow-200">
       <nav className="mx-auto max-w-7xl px-4">
-        {/* bigger height */}
         <div className="flex h-20 items-center">
-          {/* Left: Logo */}
           <div className="min-w-[140px]">
             <Link to="/" className="flex items-center gap-3">
               <span className="inline-block h-8 w-8 rounded-lg bg-yellow-400" />
@@ -54,7 +50,6 @@ const Navbar = () => {
             </Link>
           </div>
 
-          {/* Middle: Nav items */}
           <div className="flex-1">
             <ul className="flex justify-center items-center gap-8">
               <li>
@@ -92,7 +87,6 @@ const Navbar = () => {
             </ul>
           </div>
 
-          {/* Right: Auth button */}
           <div className="min-w-[140px] flex justify-end">
             {user ? (
               <button

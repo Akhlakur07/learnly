@@ -894,7 +894,7 @@ const CertificateDoc = ({
   certId,
 }) => (
   <Document>
-    <Page size="A4" style={pdfStyles.page}>
+    <Page size={[600, 500]} style={pdfStyles.page}>
       <View style={pdfStyles.border}>
         <View style={pdfStyles.header}>
           <Text style={pdfStyles.brand}>LEARNLY</Text>
